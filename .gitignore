@@ -30,6 +30,9 @@ yarn-error.*
 .DS_Store
 *.pem
 
+# local planning notes (mirrors irb-forge-fe convention)
+plan
+
 # local env files
 .env*.local
 
