@@ -1,42 +1,28 @@
-import { useMemo } from 'react';
 import { Platform } from 'react-native';
-import * as Crypto from 'expo-crypto';
-import * as WebBrowser from 'expo-web-browser';
-import {
-  makeRedirectUri,
-  ResponseType,
-  useAuthRequest,
-  type AuthSessionResult,
-} from 'expo-auth-session';
-import { discovery } from 'expo-auth-session/providers/google';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
-WebBrowser.maybeCompleteAuthSession();
+const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
 
-function resolveClientId(): string | undefined {
-  if (Platform.OS === 'ios') return process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
-  if (Platform.OS === 'android') return process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID;
-  return process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+export const isGoogleSignInConfigured = Boolean(webClientId);
+
+let configured = false;
+function ensureConfigured() {
+  if (configured) return;
+  GoogleSignin.configure({ webClientId, iosClientId });
+  configured = true;
 }
 
-export function useGoogleSignInRequest() {
-  const clientId = resolveClientId();
-  const nonce = useMemo(() => Crypto.randomUUID(), []);
+/** Returns the Google id_token on success, or null if the user cancelled. */
+export async function signInWithGoogleAsync(): Promise<string | null> {
+  if (!isGoogleSignInConfigured) return null;
+  ensureConfigured();
 
-  const [request, response, promptAsync] = useAuthRequest(
-    {
-      clientId: clientId ?? '',
-      responseType: ResponseType.IdToken,
-      scopes: ['openid', 'profile', 'email'],
-      redirectUri: makeRedirectUri({ scheme: 'irbforgemobile' }),
-      extraParams: { nonce },
-    },
-    discovery
-  );
+  if (Platform.OS === 'android') {
+    await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+  }
 
-  return { request, response, promptAsync, isConfigured: Boolean(clientId) };
-}
-
-export function extractIdToken(response: AuthSessionResult | null): string | null {
-  if (response?.type !== 'success') return null;
-  return response.params.id_token ?? null;
+  const response = await GoogleSignin.signIn();
+  if (response.type !== 'success') return null;
+  return response.data.idToken;
 }

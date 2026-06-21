@@ -48,7 +48,10 @@ export default function ProgramDetailScreen() {
         )}
 
         <ThemedView type="backgroundElement" style={styles.card}>
-          <DetailRow label="Capacity" value={program.capacity ? String(program.capacity) : 'Unlimited'} />
+          <DetailRow
+            label="Capacity"
+            value={program.capacity ? String(program.capacity) : 'Unlimited'}
+          />
           <DetailRow label="Start date" value={formatDate(program.startDate)} />
           <DetailRow label="End date" value={formatDate(program.endDate)} />
         </ThemedView>

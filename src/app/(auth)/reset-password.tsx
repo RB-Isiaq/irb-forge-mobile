@@ -95,7 +95,10 @@ export default function ResetPasswordScreen() {
                   onBlur={field.onBlur}
                   style={[
                     styles.input,
-                    { borderColor: errors.password ? theme.error : theme.border, color: theme.text },
+                    {
+                      borderColor: errors.password ? theme.error : theme.border,
+                      color: theme.text,
+                    },
                   ]}
                 />
               )}
@@ -116,7 +119,11 @@ export default function ResetPasswordScreen() {
           <Pressable
             disabled={isSubmitting}
             onPress={handleSubmit(onSubmit)}
-            style={[styles.button, { backgroundColor: theme.primary, opacity: isSubmitting ? 0.6 : 1 }]}>
+            style={[
+              styles.button,
+              { backgroundColor: theme.primary, opacity: isSubmitting ? 0.6 : 1 },
+            ]}
+          >
             {isSubmitting ? (
               <ActivityIndicator color="#fff" />
             ) : (
@@ -133,7 +140,12 @@ export default function ResetPasswordScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  safeArea: { flex: 1, paddingHorizontal: Spacing.four, justifyContent: 'center', gap: Spacing.five },
+  safeArea: {
+    flex: 1,
+    paddingHorizontal: Spacing.four,
+    justifyContent: 'center',
+    gap: Spacing.five,
+  },
   header: { gap: Spacing.one },
   title: { fontSize: 32, lineHeight: 38 },
   form: { gap: Spacing.three },

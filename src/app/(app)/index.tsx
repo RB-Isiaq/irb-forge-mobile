@@ -185,8 +185,12 @@ function CreateOrgPrompt({
           onPress={handleCreate}
           style={[
             styles.button,
-            { backgroundColor: theme.primary, opacity: createOrg.isPending || !name.trim() ? 0.6 : 1 },
-          ]}>
+            {
+              backgroundColor: theme.primary,
+              opacity: createOrg.isPending || !name.trim() ? 0.6 : 1,
+            },
+          ]}
+        >
           {createOrg.isPending ? (
             <ActivityIndicator color="#fff" />
           ) : (
@@ -229,7 +233,8 @@ function OrgSwitcherModal({
               style={[
                 styles.modalRow,
                 org.slug === activeSlug && { backgroundColor: theme.backgroundSelected },
-              ]}>
+              ]}
+            >
               <ThemedText type="default">{org.name}</ThemedText>
             </Pressable>
           ))}
@@ -273,5 +278,9 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
   },
   modalTitle: { marginBottom: Spacing.two },
-  modalRow: { paddingVertical: Spacing.three, borderRadius: Spacing.two, paddingHorizontal: Spacing.two },
+  modalRow: {
+    paddingVertical: Spacing.three,
+    borderRadius: Spacing.two,
+    paddingHorizontal: Spacing.two,
+  },
 });

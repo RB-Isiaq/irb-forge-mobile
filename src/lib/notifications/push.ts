@@ -4,12 +4,8 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 
 /**
- * Captures an Expo push token client-side and hands it to `onToken`.
- *
- * There is no backend endpoint yet to persist this token (e.g.
- * `POST /users/me/push-token`), so callers can only log/cache it for now.
- * Once that endpoint exists, wire `onToken` to call it — no changes needed
- * here.
+ * Captures an Expo push token client-side. Callers persist it via
+ * `userApi.savePushToken` (see `app/(app)/_layout.tsx`).
  */
 export async function registerForPushNotificationsAsync(): Promise<string | null> {
   if (Platform.OS === 'web') return null;
@@ -34,7 +30,7 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
   if (!projectId) {
     if (__DEV__) {
       console.warn(
-        '[push] Skipping push token registration: no EAS projectId configured yet (app.json > extra.eas.projectId).'
+        '[push] Skipping push token registration: no EAS projectId configured yet (app.config.ts > extra.eas.projectId).'
       );
     }
     return null;

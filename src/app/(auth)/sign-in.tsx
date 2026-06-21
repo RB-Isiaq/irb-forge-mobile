@@ -2,13 +2,7 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, router } from 'expo-router';
 
@@ -16,7 +10,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuthStore } from '@/lib/store/auth-store';
-import { extractIdToken, useGoogleSignInRequest } from '@/lib/auth/google';
+import { isGoogleSignInConfigured, signInWithGoogleAsync } from '@/lib/auth/google';
 import { Spacing } from '@/constants/theme';
 
 const schema = z.object({
@@ -38,8 +32,6 @@ export default function SignInScreen() {
     formState: { errors, isSubmitting },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
-  const { request, promptAsync, isConfigured } = useGoogleSignInRequest();
-
   function afterAuth() {
     const user = useAuthStore.getState().user;
     router.replace(user?.isVerified === false ? '/(auth)/verify-email' : '/(app)');
@@ -60,14 +52,8 @@ export default function SignInScreen() {
     setFormError(null);
     setGoogleSubmitting(true);
     try {
-      const result = await promptAsync();
-      const idToken = extractIdToken(result);
-      if (!idToken) {
-        if (result.type !== 'cancel' && result.type !== 'dismiss') {
-          setFormError('Google sign-in failed. Please try again.');
-        }
-        return;
-      }
+      const idToken = await signInWithGoogleAsync();
+      if (!idToken) return;
       await loginWithGoogle({ idToken });
       afterAuth();
     } catch (err) {
@@ -160,7 +146,11 @@ export default function SignInScreen() {
           <Pressable
             disabled={isSubmitting}
             onPress={handleSubmit(onSubmit)}
-            style={[styles.button, { backgroundColor: theme.primary, opacity: isSubmitting ? 0.6 : 1 }]}>
+            style={[
+              styles.button,
+              { backgroundColor: theme.primary, opacity: isSubmitting ? 0.6 : 1 },
+            ]}
+          >
             {isSubmitting ? (
               <ActivityIndicator color="#fff" />
             ) : (
@@ -170,7 +160,7 @@ export default function SignInScreen() {
             )}
           </Pressable>
 
-          {isConfigured && (
+          {isGoogleSignInConfigured && (
             <>
               <View style={styles.divider}>
                 <View style={[styles.dividerLine, { backgroundColor: theme.border }]} />
@@ -181,13 +171,14 @@ export default function SignInScreen() {
               </View>
 
               <Pressable
-                disabled={!request || googleSubmitting}
+                disabled={googleSubmitting}
                 onPress={onGooglePress}
                 style={[
                   styles.button,
                   styles.googleButton,
-                  { borderColor: theme.border, opacity: !request || googleSubmitting ? 0.6 : 1 },
-                ]}>
+                  { borderColor: theme.border, opacity: googleSubmitting ? 0.6 : 1 },
+                ]}
+              >
                 {googleSubmitting ? (
                   <ActivityIndicator color={theme.text} />
                 ) : (
@@ -218,7 +209,12 @@ export default function SignInScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  safeArea: { flex: 1, paddingHorizontal: Spacing.four, justifyContent: 'center', gap: Spacing.five },
+  safeArea: {
+    flex: 1,
+    paddingHorizontal: Spacing.four,
+    justifyContent: 'center',
+    gap: Spacing.five,
+  },
   header: { gap: Spacing.one },
   title: { fontSize: 32, lineHeight: 38 },
   form: { gap: Spacing.three },

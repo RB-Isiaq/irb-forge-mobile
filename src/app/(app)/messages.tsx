@@ -74,8 +74,12 @@ export default function MessagesScreen() {
             onPress={handleSend}
             style={[
               styles.sendButton,
-              { backgroundColor: theme.primary, opacity: sendMessage.isPending || !content.trim() ? 0.6 : 1 },
-            ]}>
+              {
+                backgroundColor: theme.primary,
+                opacity: sendMessage.isPending || !content.trim() ? 0.6 : 1,
+              },
+            ]}
+          >
             {sendMessage.isPending ? (
               <ActivityIndicator color="#fff" />
             ) : (
@@ -107,13 +111,23 @@ function MessageRow({ message }: { message: Message }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  safeArea: { flex: 1, paddingHorizontal: Spacing.four, paddingTop: Spacing.five, gap: Spacing.three },
+  safeArea: {
+    flex: 1,
+    paddingHorizontal: Spacing.four,
+    paddingTop: Spacing.five,
+    gap: Spacing.three,
+  },
   centered: { justifyContent: 'center', alignItems: 'center' },
   header: { gap: Spacing.one },
   title: { fontSize: 32, lineHeight: 38 },
   listContent: { gap: Spacing.two, paddingBottom: Spacing.three },
   card: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.half },
-  composer: { flexDirection: 'row', gap: Spacing.two, alignItems: 'flex-end', paddingBottom: Spacing.three },
+  composer: {
+    flexDirection: 'row',
+    gap: Spacing.two,
+    alignItems: 'flex-end',
+    paddingBottom: Spacing.three,
+  },
   input: {
     flex: 1,
     borderWidth: 1,

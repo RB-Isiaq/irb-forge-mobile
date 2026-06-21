@@ -33,4 +33,5 @@ export const userApi = {
   getProfile: () => apiGet<User>('/users/me'),
   updateProfile: (data: Partial<Pick<User, 'firstName' | 'lastName'>>) =>
     apiPatch<User>('/users/me', data),
+  savePushToken: (token: string) => apiPost<void>('/users/me/push-token', { token }),
 };

@@ -4,6 +4,7 @@ import { Redirect } from 'expo-router';
 import AppTabs from '@/components/app-tabs';
 import { useAuthStore } from '@/lib/store/auth-store';
 import { registerForPushNotificationsAsync } from '@/lib/notifications/push';
+import { userApi } from '@/lib/api/auth';
 
 export default function AppLayout() {
   const isInitialized = useAuthStore((s) => s.isInitialized);
@@ -11,8 +12,9 @@ export default function AppLayout() {
 
   useEffect(() => {
     if (!user) return;
-    // No backend endpoint to persist this token yet — captured for later wiring.
-    void registerForPushNotificationsAsync();
+    void registerForPushNotificationsAsync().then((token) => {
+      if (token) void userApi.savePushToken(token);
+    });
   }, [user]);
 
   // Defensive guard for deep links straight into (app) — the root index.tsx

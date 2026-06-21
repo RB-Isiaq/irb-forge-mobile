@@ -4,7 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/hooks/use-theme';
-import { useAcceptInvitation, useDeclineInvitation, useMyInvitations } from '@/lib/queries/invitation';
+import {
+  useAcceptInvitation,
+  useDeclineInvitation,
+  useMyInvitations,
+} from '@/lib/queries/invitation';
 import type { Invitation } from '@/lib/api/types';
 import { Spacing } from '@/constants/theme';
 
@@ -80,7 +84,8 @@ function InvitationRow({
         <Pressable
           disabled={isBusy}
           onPress={onDecline}
-          style={[styles.actionButton, { borderColor: theme.error, opacity: isBusy ? 0.6 : 1 }]}>
+          style={[styles.actionButton, { borderColor: theme.error, opacity: isBusy ? 0.6 : 1 }]}
+        >
           <ThemedText type="small" themeColor="error">
             Decline
           </ThemedText>
@@ -88,7 +93,11 @@ function InvitationRow({
         <Pressable
           disabled={isBusy}
           onPress={onAccept}
-          style={[styles.actionButton, { backgroundColor: theme.primary, opacity: isBusy ? 0.6 : 1 }]}>
+          style={[
+            styles.actionButton,
+            { backgroundColor: theme.primary, opacity: isBusy ? 0.6 : 1 },
+          ]}
+        >
           <ThemedText type="small" style={{ color: '#fff' }}>
             Accept
           </ThemedText>
@@ -100,7 +109,12 @@ function InvitationRow({
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  safeArea: { flex: 1, paddingHorizontal: Spacing.four, paddingTop: Spacing.five, gap: Spacing.three },
+  safeArea: {
+    flex: 1,
+    paddingHorizontal: Spacing.four,
+    paddingTop: Spacing.five,
+    gap: Spacing.three,
+  },
   header: { gap: Spacing.one },
   title: { fontSize: 32, lineHeight: 38 },
   listContent: { gap: Spacing.two, paddingBottom: Spacing.six },

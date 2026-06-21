@@ -6,7 +6,12 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/hooks/use-theme';
 import { useOrgStore } from '@/lib/store/org-store';
-import { useMembers, useMyMembership, useRemoveMember, useUpdateMemberRole } from '@/lib/queries/member';
+import {
+  useMembers,
+  useMyMembership,
+  useRemoveMember,
+  useUpdateMemberRole,
+} from '@/lib/queries/member';
 import type { Membership, OrgRole } from '@/lib/api/types';
 import { Spacing } from '@/constants/theme';
 
@@ -98,7 +103,8 @@ function MemberRow({
   onRemove: () => void;
 }) {
   const theme = useTheme();
-  const name = `${member.user.firstName ?? ''} ${member.user.lastName ?? ''}`.trim() || member.user.email;
+  const name =
+    `${member.user.firstName ?? ''} ${member.user.lastName ?? ''}`.trim() || member.user.email;
 
   return (
     <ThemedView type="backgroundElement" style={styles.card}>
@@ -125,7 +131,8 @@ function MemberRow({
             <Pressable
               key={role}
               onPress={() => onChangeRole(role)}
-              style={[styles.roleOption, { borderColor: theme.border }]}>
+              style={[styles.roleOption, { borderColor: theme.border }]}
+            >
               <ThemedText type="small">Make {role}</ThemedText>
             </Pressable>
           ))}
@@ -153,7 +160,12 @@ function RoleBadge({ role }: { role: OrgRole }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  safeArea: { flex: 1, paddingHorizontal: Spacing.four, paddingTop: Spacing.five, gap: Spacing.three },
+  safeArea: {
+    flex: 1,
+    paddingHorizontal: Spacing.four,
+    paddingTop: Spacing.five,
+    gap: Spacing.three,
+  },
   centered: { justifyContent: 'center', alignItems: 'center' },
   header: { gap: Spacing.one },
   title: { fontSize: 32, lineHeight: 38 },
@@ -161,7 +173,11 @@ const styles = StyleSheet.create({
   card: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.two },
   cardRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   cardInfo: { flex: 1, gap: Spacing.half },
-  badge: { borderRadius: Spacing.two, paddingHorizontal: Spacing.two, paddingVertical: Spacing.half },
+  badge: {
+    borderRadius: Spacing.two,
+    paddingHorizontal: Spacing.two,
+    paddingVertical: Spacing.half,
+  },
   manageButton: { paddingHorizontal: Spacing.one },
   manageRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },
   roleOption: {

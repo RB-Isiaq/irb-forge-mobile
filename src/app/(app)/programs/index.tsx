@@ -89,7 +89,12 @@ function ProgramRow({ program }: { program: Program }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  safeArea: { flex: 1, paddingHorizontal: Spacing.four, paddingTop: Spacing.five, gap: Spacing.three },
+  safeArea: {
+    flex: 1,
+    paddingHorizontal: Spacing.four,
+    paddingTop: Spacing.five,
+    gap: Spacing.three,
+  },
   centered: { justifyContent: 'center', alignItems: 'center' },
   header: { gap: Spacing.one },
   title: { fontSize: 32, lineHeight: 38 },

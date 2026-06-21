@@ -44,7 +44,8 @@ export default function ProfileScreen() {
         <Pressable
           disabled={signingOut}
           onPress={handleSignOut}
-          style={[styles.button, { borderColor: theme.error, opacity: signingOut ? 0.6 : 1 }]}>
+          style={[styles.button, { borderColor: theme.error, opacity: signingOut ? 0.6 : 1 }]}
+        >
           {signingOut ? (
             <ActivityIndicator color={theme.error} />
           ) : (
@@ -60,7 +61,12 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  safeArea: { flex: 1, paddingHorizontal: Spacing.four, paddingTop: Spacing.five, gap: Spacing.four },
+  safeArea: {
+    flex: 1,
+    paddingHorizontal: Spacing.four,
+    paddingTop: Spacing.five,
+    gap: Spacing.four,
+  },
   header: { gap: Spacing.one },
   title: { fontSize: 32, lineHeight: 38 },
   card: { borderRadius: Spacing.three, padding: Spacing.four, gap: Spacing.half },

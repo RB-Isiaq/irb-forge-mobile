@@ -70,7 +70,10 @@ export default function RegisterScreen() {
                     onBlur={field.onBlur}
                     style={[
                       styles.input,
-                      { borderColor: errors.firstName ? theme.error : theme.border, color: theme.text },
+                      {
+                        borderColor: errors.firstName ? theme.error : theme.border,
+                        color: theme.text,
+                      },
                     ]}
                   />
                 )}
@@ -96,7 +99,10 @@ export default function RegisterScreen() {
                     onBlur={field.onBlur}
                     style={[
                       styles.input,
-                      { borderColor: errors.lastName ? theme.error : theme.border, color: theme.text },
+                      {
+                        borderColor: errors.lastName ? theme.error : theme.border,
+                        color: theme.text,
+                      },
                     ]}
                   />
                 )}
@@ -154,7 +160,10 @@ export default function RegisterScreen() {
                   onBlur={field.onBlur}
                   style={[
                     styles.input,
-                    { borderColor: errors.password ? theme.error : theme.border, color: theme.text },
+                    {
+                      borderColor: errors.password ? theme.error : theme.border,
+                      color: theme.text,
+                    },
                   ]}
                 />
               )}
@@ -175,7 +184,11 @@ export default function RegisterScreen() {
           <Pressable
             disabled={isSubmitting}
             onPress={handleSubmit(onSubmit)}
-            style={[styles.button, { backgroundColor: theme.primary, opacity: isSubmitting ? 0.6 : 1 }]}>
+            style={[
+              styles.button,
+              { backgroundColor: theme.primary, opacity: isSubmitting ? 0.6 : 1 },
+            ]}
+          >
             {isSubmitting ? (
               <ActivityIndicator color="#fff" />
             ) : (
@@ -200,7 +213,12 @@ export default function RegisterScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  safeArea: { flex: 1, paddingHorizontal: Spacing.four, justifyContent: 'center', gap: Spacing.five },
+  safeArea: {
+    flex: 1,
+    paddingHorizontal: Spacing.four,
+    justifyContent: 'center',
+    gap: Spacing.five,
+  },
   header: { gap: Spacing.one },
   title: { fontSize: 32, lineHeight: 38 },
   form: { gap: Spacing.three },
