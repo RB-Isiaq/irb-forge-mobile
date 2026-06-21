@@ -2,10 +2,13 @@ import { NativeTabs } from 'expo-router/unstable-native-tabs';
 import { useColorScheme } from 'react-native';
 
 import { Colors } from '@/constants/theme';
+import { useMyInvitations } from '@/lib/queries/invitation';
 
 export default function AppTabs() {
   const scheme = useColorScheme();
   const colors = Colors[scheme === 'unspecified' ? 'light' : scheme];
+  const { data: invitations } = useMyInvitations();
+  const pendingCount = invitations?.filter((i) => i.status === 'pending').length ?? 0;
 
   return (
     <NativeTabs
@@ -14,18 +17,35 @@ export default function AppTabs() {
       labelStyle={{ selected: { color: colors.text } }}>
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/home.png')}
-          renderingMode="template"
-        />
+        <NativeTabs.Trigger.Icon sf="house.fill" md="home" />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="programs">
+        <NativeTabs.Trigger.Label>Programs</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="square.grid.2x2.fill" md="apps" />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="members">
+        <NativeTabs.Trigger.Label>Members</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="person.2.fill" md="group" />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="invitations">
+        <NativeTabs.Trigger.Label>Inbox</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="envelope.fill" md="mail" />
+        {pendingCount > 0 && (
+          <NativeTabs.Trigger.Badge>{String(pendingCount)}</NativeTabs.Trigger.Badge>
+        )}
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="messages">
+        <NativeTabs.Trigger.Label>Announcements</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="megaphone.fill" md="campaign" />
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="profile">
         <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
-          renderingMode="template"
-        />
+        <NativeTabs.Trigger.Icon sf="person.crop.circle.fill" md="person" />
       </NativeTabs.Trigger>
     </NativeTabs>
   );
