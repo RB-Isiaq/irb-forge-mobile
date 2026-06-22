@@ -8,6 +8,8 @@ import { Link, router } from 'expo-router';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { AuthHeader } from '@/components/auth-header';
+import { GoogleGIcon } from '@/components/google-g-icon';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuthStore } from '@/lib/store/auth-store';
 import { isGoogleSignInConfigured, signInWithGoogleAsync } from '@/lib/auth/google';
@@ -68,9 +70,7 @@ export default function SignInScreen() {
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
-          <ThemedText type="title" style={styles.title}>
-            IRB Forge
-          </ThemedText>
+          <AuthHeader />
           <ThemedText type="default" themeColor="textMuted">
             Sign in to continue
           </ThemedText>
@@ -182,7 +182,10 @@ export default function SignInScreen() {
                 {googleSubmitting ? (
                   <ActivityIndicator color={theme.text} />
                 ) : (
-                  <ThemedText type="smallBold">Continue with Google</ThemedText>
+                  <View style={styles.googleContent}>
+                    <GoogleGIcon size={20} />
+                    <ThemedText type="smallBold">Continue with Google</ThemedText>
+                  </View>
                 )}
               </Pressable>
             </>
@@ -237,4 +240,5 @@ const styles = StyleSheet.create({
   divider: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   dividerLine: { flex: 1, height: 1 },
   googleButton: { borderWidth: 1, backgroundColor: 'transparent' },
+  googleContent: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
 });

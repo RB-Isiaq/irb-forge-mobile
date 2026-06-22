@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Link } from 'expo-router';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -48,6 +49,15 @@ export default function MembersScreen() {
           <ThemedText type="title" style={styles.title}>
             Members
           </ThemedText>
+          {canManage && (
+            <Link href="/(app)/members/invite" asChild>
+              <Pressable style={[styles.inviteBtn, { backgroundColor: theme.primary }]}>
+                <ThemedText type="small" style={{ color: '#fff' }}>
+                  Invite
+                </ThemedText>
+              </Pressable>
+            </Link>
+          )}
         </View>
 
         {isLoading ? (
@@ -167,8 +177,13 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   centered: { justifyContent: 'center', alignItems: 'center' },
-  header: { gap: Spacing.one },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   title: { fontSize: 32, lineHeight: 38 },
+  inviteBtn: {
+    borderRadius: Spacing.two,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.one,
+  },
   listContent: { gap: Spacing.two, paddingBottom: Spacing.six },
   card: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.two },
   cardRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },

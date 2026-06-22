@@ -203,3 +203,77 @@ export interface Message {
 export interface SendMessagePayload {
   content: string;
 }
+
+/* ─── Account ────────────────────────────────────── */
+
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export type UpdateProfilePayload = Partial<Pick<User, 'firstName' | 'lastName'>>;
+
+/* ─── Enrollments ────────────────────────────────── */
+
+export type EnrollmentStatus = 'active' | 'completed' | 'dropped';
+
+export interface Enrollment {
+  id: string;
+  userId: string;
+  programId: string;
+  status: EnrollmentStatus;
+  enrolledAt: string;
+  completedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  user?: {
+    id: string;
+    email: string;
+    firstName: string | null;
+    lastName: string | null;
+  };
+  program?: {
+    id: string;
+    name: string;
+    description: string | null;
+    status: ProgramStatus;
+    startDate: string | null;
+    endDate: string | null;
+  };
+}
+
+export interface UpdateEnrollmentStatusPayload {
+  status: Exclude<EnrollmentStatus, 'active'>;
+}
+
+/* ─── Subscriptions & billing ────────────────────── */
+
+export type OrgPlan = 'free' | 'pro';
+export type SubscriptionStatus = 'active' | 'past_due' | 'trialing' | 'cancelled';
+
+export interface Subscription {
+  id: string;
+  organizationId: string;
+  plan: OrgPlan;
+  status: SubscriptionStatus;
+  stripeCustomerId: string | null;
+  currentPeriodEnd: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Payment {
+  id: string;
+  organizationId: string;
+  stripePaymentIntentId: string;
+  amount: number; // in cents — divide by 100 for display
+  currency: string;
+  status: 'succeeded' | 'failed' | 'refunded';
+  createdAt: string;
+}
+
+export type PaginatedPayments = PaginatedData<Payment>;
+
+export interface CheckoutSession {
+  url: string;
+}

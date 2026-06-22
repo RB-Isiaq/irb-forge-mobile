@@ -1,12 +1,14 @@
 import { apiGet, apiPatch, apiPost } from './client';
 import type {
   AuthTokens,
+  ChangePasswordPayload,
   ForgotPasswordPayload,
   GoogleSignInPayload,
   LoginPayload,
   RegisterPayload,
   ResendVerificationPayload,
   ResetPasswordPayload,
+  UpdateProfilePayload,
   User,
   VerifyEmailPayload,
 } from './types';
@@ -29,9 +31,10 @@ export const userApi = {
     apiPost<{ message: string }>('/auth/forgot-password', data),
   resetPassword: (data: ResetPasswordPayload) =>
     apiPost<{ message: string }>('/auth/reset-password', data),
+  changePassword: (data: ChangePasswordPayload) =>
+    apiPost<{ message: string }>('/auth/change-password', data),
   logout: () => apiPost<{ message: string }>('/auth/logout'),
   getProfile: () => apiGet<User>('/users/me'),
-  updateProfile: (data: Partial<Pick<User, 'firstName' | 'lastName'>>) =>
-    apiPatch<User>('/users/me', data),
+  updateProfile: (data: UpdateProfilePayload) => apiPatch<User>('/users/me', data),
   savePushToken: (token: string) => apiPost<void>('/users/me/push-token', { token }),
 };
