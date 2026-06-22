@@ -63,7 +63,8 @@ export default function ForgotPasswordScreen() {
                   params: { email: getValues('email') },
                 })
               }
-              style={[styles.button, { backgroundColor: theme.primary }]}>
+              style={[styles.button, { backgroundColor: theme.primary }]}
+            >
               <ThemedText type="smallBold" style={{ color: '#fff' }}>
                 I have a code
               </ThemedText>
@@ -109,7 +110,11 @@ export default function ForgotPasswordScreen() {
             <Pressable
               disabled={isSubmitting}
               onPress={handleSubmit(onSubmit)}
-              style={[styles.button, { backgroundColor: theme.primary, opacity: isSubmitting ? 0.6 : 1 }]}>
+              style={[
+                styles.button,
+                { backgroundColor: theme.primary, opacity: isSubmitting ? 0.6 : 1 },
+              ]}
+            >
               {isSubmitting ? (
                 <ActivityIndicator color="#fff" />
               ) : (
@@ -127,7 +132,12 @@ export default function ForgotPasswordScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  safeArea: { flex: 1, paddingHorizontal: Spacing.four, justifyContent: 'center', gap: Spacing.five },
+  safeArea: {
+    flex: 1,
+    paddingHorizontal: Spacing.four,
+    justifyContent: 'center',
+    gap: Spacing.five,
+  },
   header: { gap: Spacing.one },
   title: { fontSize: 32, lineHeight: 38 },
   form: { gap: Spacing.three },

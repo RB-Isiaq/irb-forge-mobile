@@ -7,8 +7,10 @@ import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export function useTheme() {
+  // useColorScheme can return 'light' | 'dark' | 'unspecified' | null | undefined
+  // (null when the system scheme is undetermined). Anything that isn't 'dark'
+  // falls back to the light palette so we never index Colors with a bad key.
   const scheme = useColorScheme();
-  const theme = scheme === 'unspecified' ? 'light' : scheme;
 
-  return Colors[theme];
+  return scheme === 'dark' ? Colors.dark : Colors.light;
 }

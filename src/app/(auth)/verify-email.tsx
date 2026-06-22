@@ -70,7 +70,10 @@ export default function VerifyEmailScreen() {
             value={otp}
             onChangeText={setOtp}
             maxLength={6}
-            style={[styles.input, { borderColor: error ? theme.error : theme.border, color: theme.text }]}
+            style={[
+              styles.input,
+              { borderColor: error ? theme.error : theme.border, color: theme.text },
+            ]}
           />
 
           {error && (
@@ -90,7 +93,8 @@ export default function VerifyEmailScreen() {
             style={[
               styles.button,
               { backgroundColor: theme.primary, opacity: submitting || otp.length === 0 ? 0.6 : 1 },
-            ]}>
+            ]}
+          >
             {submitting ? (
               <ActivityIndicator color="#fff" />
             ) : (
@@ -119,7 +123,12 @@ export default function VerifyEmailScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  safeArea: { flex: 1, paddingHorizontal: Spacing.four, justifyContent: 'center', gap: Spacing.five },
+  safeArea: {
+    flex: 1,
+    paddingHorizontal: Spacing.four,
+    justifyContent: 'center',
+    gap: Spacing.five,
+  },
   header: { gap: Spacing.one },
   title: { fontSize: 32, lineHeight: 38 },
   form: { gap: Spacing.three },

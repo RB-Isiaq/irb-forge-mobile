@@ -43,6 +43,9 @@ export const tokenStore = {
   },
 };
 
+// axios's default export intentionally carries `create` as a member; the
+// import/no-named-as-default-member heuristic flags this as a false positive.
+// eslint-disable-next-line import/no-named-as-default-member
 const client: AxiosInstance = axios.create({
   baseURL: BASE_URL,
   headers: { 'Content-Type': 'application/json' },

@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Format · Lint · Type check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run type-check
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test
+        run: npm run test:ci
+
+  build:
+    name: Export bundle
+    runs-on: ubuntu-latest
+    needs: [quality, test]
+    env:
+      # Stub values so the JS bundle can build in CI without real secrets.
+      # Native release builds run on EAS Build, not here.
+      EXPO_PUBLIC_API_URL: http://localhost:3000/api
+      EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID: stub
+      EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID: stub
+      EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: stub
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Export (web + native JS bundle)
+        run: npx expo export --output-dir dist
+
+      - name: Upload export artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: expo-export
+          path: dist/
+          retention-days: 3
