@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { UnverifiedBanner } from '@/components/unverified-banner';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuthStore } from '@/lib/store/auth-store';
 import { useOrgStore } from '@/lib/store/org-store';
@@ -61,6 +62,7 @@ export default function HomeScreen() {
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
+          <UnverifiedBanner />
           <View style={styles.header}>
             <ThemedText type="default" themeColor="textMuted">
               Welcome{user?.firstName ? `, ${user.firstName}` : ''}

@@ -7,7 +7,8 @@ import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/hooks/use-theme';
 import { useOrgStore } from '@/lib/store/org-store';
 import { usePrograms } from '@/lib/queries/program';
-import type { Program, ProgramStatus } from '@/lib/api/types';
+import { useMyMembership } from '@/lib/queries/member';
+import type { OrgRole, Program, ProgramStatus } from '@/lib/api/types';
 import { Spacing } from '@/constants/theme';
 
 const STATUS_COLOR: Record<ProgramStatus, 'success' | 'primary' | 'textMuted' | 'error'> = {
@@ -17,10 +18,14 @@ const STATUS_COLOR: Record<ProgramStatus, 'success' | 'primary' | 'textMuted' | 
   cancelled: 'error',
 };
 
+const CAN_MANAGE: OrgRole[] = ['owner', 'admin'];
+
 export default function ProgramsScreen() {
   const theme = useTheme();
   const activeOrgSlug = useOrgStore((s) => s.activeOrgSlug);
   const { data: programs, isLoading } = usePrograms(activeOrgSlug);
+  const { data: myMembership } = useMyMembership(activeOrgSlug);
+  const canManage = myMembership ? CAN_MANAGE.includes(myMembership.role) : false;
 
   if (!activeOrgSlug) {
     return (
@@ -41,6 +46,24 @@ export default function ProgramsScreen() {
           <ThemedText type="title" style={styles.title}>
             Programs
           </ThemedText>
+          <View style={styles.headerActions}>
+            <Link href="/(app)/programs/my-enrollments" asChild>
+              <Pressable>
+                <ThemedText type="link" themeColor="primary">
+                  My enrollments
+                </ThemedText>
+              </Pressable>
+            </Link>
+            {canManage && (
+              <Link href="/(app)/programs/new" asChild>
+                <Pressable style={[styles.newBtn, { backgroundColor: theme.primary }]}>
+                  <ThemedText type="small" style={{ color: '#fff' }}>
+                    + New
+                  </ThemedText>
+                </Pressable>
+              </Link>
+            )}
+          </View>
         </View>
 
         {isLoading ? (
@@ -96,8 +119,19 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   centered: { justifyContent: 'center', alignItems: 'center' },
-  header: { gap: Spacing.one },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  headerActions: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
   title: { fontSize: 32, lineHeight: 38 },
+  newBtn: {
+    borderRadius: Spacing.two,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.one,
+  },
   listContent: { gap: Spacing.two, paddingBottom: Spacing.six },
   card: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.one },
   cardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },

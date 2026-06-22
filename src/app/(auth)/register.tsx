@@ -8,6 +8,7 @@ import { Link, router } from 'expo-router';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { AuthHeader } from '@/components/auth-header';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuthStore } from '@/lib/store/auth-store';
 import { Spacing } from '@/constants/theme';
@@ -45,6 +46,7 @@ export default function RegisterScreen() {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
+        <AuthHeader />
         <View style={styles.header}>
           <ThemedText type="title" style={styles.title}>
             Create account

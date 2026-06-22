@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
-import { Redirect } from 'expo-router';
+import { Redirect, router } from 'expo-router';
+import type { Href } from 'expo-router';
+import * as Notifications from 'expo-notifications';
 
 import AppTabs from '@/components/app-tabs';
 import { useAuthStore } from '@/lib/store/auth-store';
@@ -15,6 +17,18 @@ export default function AppLayout() {
     void registerForPushNotificationsAsync().then((token) => {
       if (token) void userApi.savePushToken(token);
     });
+  }, [user]);
+
+  // Tapping a notification can deep-link via a `url` in its data payload.
+  useEffect(() => {
+    if (!user) return;
+    const sub = Notifications.addNotificationResponseReceivedListener((response) => {
+      const url = response.notification.request.content.data?.url;
+      if (typeof url === 'string') {
+        router.push(url as Href);
+      }
+    });
+    return () => sub.remove();
   }, [user]);
 
   // Defensive guard for deep links straight into (app) — the root index.tsx

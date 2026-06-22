@@ -28,4 +28,20 @@ export const queryKeys = {
   messages: {
     byOrg: (slug: string) => ['orgs', slug, 'messages'] as const,
   },
+
+  enrollments: {
+    byProgram: (slug: string, programId: string) =>
+      ['orgs', slug, 'programs', programId, 'enrollments'] as const,
+    mine: (slug: string, programId: string) =>
+      ['orgs', slug, 'programs', programId, 'enrollments', 'me'] as const,
+    myInOrg: (slug: string) => ['orgs', slug, 'enrollments', 'me'] as const,
+  },
+
+  subscription: {
+    byOrg: (slug: string) => ['orgs', slug, 'subscription'] as const,
+  },
+
+  payments: {
+    byOrg: (slug: string) => ['orgs', slug, 'payments'] as const,
+  },
 } as const;

@@ -4,6 +4,19 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 
 /**
+ * Controls how notifications behave while the app is foregrounded. Set once at
+ * module load so a notification arriving with the app open still shows a banner.
+ */
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
+
+/**
  * Captures an Expo push token client-side. Callers persist it via
  * `userApi.savePushToken` (see `app/(app)/_layout.tsx`).
  */
