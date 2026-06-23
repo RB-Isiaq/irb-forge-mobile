@@ -2,10 +2,10 @@
 
 The mobile client for **IRB Forge** — built with [Expo](https://expo.dev) (SDK 56) and React Native. It is a sibling to the web app (`irb-forge-fe`) and the backend API (`irb-forge`), and shares their conventions. The app lets users work with **organizations** and their **members**, **programs**, **invitations**, and **messages**.
 
-## Live demo
+## Links
 
-- **Web:** [irb-forge-mobile.expo.app](https://irb-forge-mobile.expo.app) — the app running in the browser against the production API.
-- **Android (APK):** produced by EAS Build — see [Building & deploying](#building--deploying). EAS artifact links expire (~30 days on the free tier); for a permanent download, attach the `.apk` to a [GitHub Release](https://docs.github.com/en/repositories/releasing-projects-on-github).
+- **Android app (this repo):** install the APK from EAS Build — see [Building & deploying](#building--deploying). For a permanent download, attach the `.apk` to a [GitHub Release](https://docs.github.com/en/repositories/releasing-projects-on-github). _(The Expo web export isn't a supported target — this is a native-first app.)_
+- **Web version of IRB Forge:** [irb-forge-fe.vercel.app](https://irb-forge-fe.vercel.app) — the sibling web client (separate `irb-forge-fe` repo).
 
 ## Tech stack
 
@@ -88,10 +88,6 @@ eas build --platform android --profile preview
 # Store builds
 eas build --platform android --profile production   # AAB → Play Store
 eas build --platform ios --profile production       # needs an Apple Developer account
-
-# Web → static export, then deploy
-npx expo export --platform web
-eas deploy --prod
 ```
 
 **Build-time env vars:** EAS never sees `.env.local` (it's git-ignored), so set vars needed by cloud builds as **EAS environment variables** (`eas env:create … --environment preview|production`). The iOS Google-Sign-In pods build as static frameworks via `expo-build-properties` in `app.config.ts` — don't remove it or `pod install` breaks.
