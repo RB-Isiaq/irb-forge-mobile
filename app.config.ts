@@ -58,16 +58,14 @@ const config: ExpoConfig = {
   scheme: 'com.irbforge.mobile',
   userInterfaceStyle: 'automatic',
   ios: {
-    icon: './assets/expo.icon',
+    icon: './assets/images/icon.png',
     bundleIdentifier: 'com.irbforge.mobile',
   },
   android: {
     package: 'com.irbforge.mobile',
     adaptiveIcon: {
-      backgroundColor: '#E6F4FE',
+      backgroundColor: '#4f46e5',
       foregroundImage: './assets/images/android-icon-foreground.png',
-      backgroundImage: './assets/images/android-icon-background.png',
-      monochromeImage: './assets/images/android-icon-monochrome.png',
     },
     predictiveBackGestureEnabled: false,
   },
