@@ -34,7 +34,14 @@ cp .env.example .env.local   # then fill in the values (see below)
 npm start
 ```
 
-From the dev server you can open the app on an iOS simulator (`i`), Android emulator (`a`), or the web (`w`) — or scan the QR code with a development build.
+> **This app needs a development build — not Expo Go.** It uses custom native modules (native Google Sign-In) on Expo SDK 56, which the prebuilt Expo Go client can't load (you'll see _"incompatible with this version of Expo Go"_). Build a dev client once, then `npm start` connects to it with fast refresh:
+>
+> ```bash
+> npx expo run:android   # builds + installs a dev client on an emulator/device
+> npx expo run:ios       # iOS simulator/device (needs Xcode + CocoaPods)
+> ```
+>
+> After that, `npm start` → press `a`/`i` to open the installed dev build. The web target (`w`) runs in the browser and needs no dev build.
 
 > **Android emulator:** set `EXPO_PUBLIC_API_URL` to `http://10.0.2.2:3000/api` (the emulator's alias for your host machine) instead of `localhost`.
 
@@ -49,6 +56,8 @@ All client-side env vars are prefixed `EXPO_PUBLIC_` and live in `.env.local` (g
 | `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`     | Google OAuth iOS client — required for iOS sign-in; the native `iosUrlScheme` is derived from it in [`app.config.ts`](app.config.ts)        |
 | `EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID` | Google OAuth Android client — must exist in Google Cloud Console or Android sign-in fails                                                   |
 
+> `EXPO_PUBLIC_*` vars are **inlined at build time**, not read at runtime — so changing one requires re-bundling (and `--clear` to bust Metro's transform cache). For production/hosted builds, put overrides (e.g. the prod API URL) in `.env.production.local`, which beats `.env.local`. See [Building & deploying](#building--deploying).
+
 ## Scripts
 
 | Command                           | Description                        |
@@ -62,6 +71,25 @@ All client-side env vars are prefixed `EXPO_PUBLIC_` and live in `.env.local` (g
 | `npm test`                        | Run the Jest suite                 |
 | `npm run test:watch`              | Jest in watch mode                 |
 | `npm run test:ci`                 | Jest with coverage (used by CI)    |
+
+## Building & deploying
+
+Native builds run on **EAS Build** (profiles in [`eas.json`](eas.json)); the web target deploys to **EAS Hosting**.
+
+```bash
+# Android APK for testing / sideloading (free, shareable install link)
+eas build --platform android --profile preview
+
+# Store builds
+eas build --platform android --profile production   # AAB → Play Store
+eas build --platform ios --profile production       # needs an Apple Developer account
+
+# Web → static export, then deploy
+npx expo export --platform web
+eas deploy --prod
+```
+
+**Build-time env vars:** EAS never sees `.env.local` (it's git-ignored), so set vars needed by cloud builds as **EAS environment variables** (`eas env:create … --environment preview|production`). The iOS Google-Sign-In pods build as static frameworks via `expo-build-properties` in `app.config.ts` — don't remove it or `pod install` breaks.
 
 ## Project structure
 
