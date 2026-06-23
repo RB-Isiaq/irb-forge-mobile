@@ -2,6 +2,11 @@
 
 The mobile client for **IRB Forge** — built with [Expo](https://expo.dev) (SDK 56) and React Native. It is a sibling to the web app (`irb-forge-fe`) and the backend API (`irb-forge`), and shares their conventions. The app lets users work with **organizations** and their **members**, **programs**, **invitations**, and **messages**.
 
+## Live demo
+
+- **Web:** [irb-forge-mobile.expo.app](https://irb-forge-mobile.expo.app) — the app running in the browser against the production API.
+- **Android (APK):** produced by EAS Build — see [Building & deploying](#building--deploying). EAS artifact links expire (~30 days on the free tier); for a permanent download, attach the `.apk` to a [GitHub Release](https://docs.github.com/en/repositories/releasing-projects-on-github).
+
 ## Tech stack
 
 | Concern            | Choice                                                                              |
