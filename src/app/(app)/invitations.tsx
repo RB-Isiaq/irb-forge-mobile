@@ -1,9 +1,17 @@
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  RefreshControl,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/hooks/use-theme';
+import { useRefetchOnFocus } from '@/hooks/use-refetch-on-focus';
 import {
   useAcceptInvitation,
   useDeclineInvitation,
@@ -14,9 +22,11 @@ import { Spacing } from '@/constants/theme';
 
 export default function InvitationsScreen() {
   const theme = useTheme();
-  const { data: invitations, isLoading } = useMyInvitations();
+  const { data: invitations, isLoading, refetch, isRefetching } = useMyInvitations();
   const acceptInvitation = useAcceptInvitation();
   const declineInvitation = useDeclineInvitation();
+
+  useRefetchOnFocus(refetch);
 
   const pending = (invitations ?? []).filter((i) => i.status === 'pending');
 
@@ -36,6 +46,13 @@ export default function InvitationsScreen() {
             data={pending}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContent}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefetching}
+                onRefresh={refetch}
+                tintColor={theme.primary}
+              />
+            }
             ListEmptyComponent={
               <ThemedText type="small" themeColor="textMuted">
                 No pending invitations.

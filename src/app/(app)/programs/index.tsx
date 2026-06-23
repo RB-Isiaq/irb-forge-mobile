@@ -1,10 +1,18 @@
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  RefreshControl,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/hooks/use-theme';
+import { useRefetchOnFocus } from '@/hooks/use-refetch-on-focus';
 import { useOrgStore } from '@/lib/store/org-store';
 import { usePrograms } from '@/lib/queries/program';
 import { useMyMembership } from '@/lib/queries/member';
@@ -23,9 +31,11 @@ const CAN_MANAGE: OrgRole[] = ['owner', 'admin'];
 export default function ProgramsScreen() {
   const theme = useTheme();
   const activeOrgSlug = useOrgStore((s) => s.activeOrgSlug);
-  const { data: programs, isLoading } = usePrograms(activeOrgSlug);
+  const { data: programs, isLoading, refetch, isRefetching } = usePrograms(activeOrgSlug);
   const { data: myMembership } = useMyMembership(activeOrgSlug);
   const canManage = myMembership ? CAN_MANAGE.includes(myMembership.role) : false;
+
+  useRefetchOnFocus(refetch);
 
   if (!activeOrgSlug) {
     return (
@@ -73,6 +83,13 @@ export default function ProgramsScreen() {
             data={programs?.items ?? []}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContent}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefetching}
+                onRefresh={refetch}
+                tintColor={theme.primary}
+              />
+            }
             ListEmptyComponent={
               <ThemedText type="small" themeColor="textMuted">
                 No programs yet.

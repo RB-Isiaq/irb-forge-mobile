@@ -1,11 +1,19 @@
 import { useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  RefreshControl,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/hooks/use-theme';
+import { useRefetchOnFocus } from '@/hooks/use-refetch-on-focus';
 import { useOrgStore } from '@/lib/store/org-store';
 import {
   useMembers,
@@ -22,8 +30,9 @@ const CAN_MANAGE_ROLES: OrgRole[] = ['owner', 'admin'];
 export default function MembersScreen() {
   const theme = useTheme();
   const activeOrgSlug = useOrgStore((s) => s.activeOrgSlug);
-  const { data: members, isLoading } = useMembers(activeOrgSlug);
+  const { data: members, isLoading, refetch, isRefetching } = useMembers(activeOrgSlug);
   const { data: myMembership } = useMyMembership(activeOrgSlug);
+  useRefetchOnFocus(refetch);
   const updateRole = useUpdateMemberRole(activeOrgSlug ?? '');
   const removeMember = useRemoveMember(activeOrgSlug ?? '');
   const [managingUserId, setManagingUserId] = useState<string | null>(null);
@@ -67,6 +76,13 @@ export default function MembersScreen() {
             data={members?.items ?? []}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContent}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefetching}
+                onRefresh={refetch}
+                tintColor={theme.primary}
+              />
+            }
             ListEmptyComponent={
               <ThemedText type="small" themeColor="textMuted">
                 No members yet.

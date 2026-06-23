@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
-import { useColorScheme } from 'react-native';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { AppState, useColorScheme, type AppStateStatus } from 'react-native';
+import { focusManager, QueryClientProvider } from '@tanstack/react-query';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { queryClient } from '@/lib/query-client';
@@ -14,6 +14,15 @@ export default function RootLayout() {
   useEffect(() => {
     void bootstrap();
   }, [bootstrap]);
+
+  // React Query's refetchOnWindowFocus doesn't fire on React Native by default —
+  // bridge it to AppState so returning from the background refetches stale data.
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (status: AppStateStatus) => {
+      focusManager.setFocused(status === 'active');
+    });
+    return () => sub.remove();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
