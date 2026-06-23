@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Modal,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   TextInput,
@@ -14,6 +15,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { UnverifiedBanner } from '@/components/unverified-banner';
 import { useTheme } from '@/hooks/use-theme';
+import { useRefetchOnFocus } from '@/hooks/use-refetch-on-focus';
 import { useAuthStore } from '@/lib/store/auth-store';
 import { useOrgStore } from '@/lib/store/org-store';
 import { useCreateOrg, useOrgs } from '@/lib/queries/org';
@@ -28,7 +30,7 @@ export default function HomeScreen() {
   const user = useAuthStore((s) => s.user);
   const activeOrgSlug = useOrgStore((s) => s.activeOrgSlug);
   const setActiveOrgSlug = useOrgStore((s) => s.setActiveOrgSlug);
-  const { data: orgs, isLoading: orgsLoading } = useOrgs();
+  const { data: orgs, isLoading: orgsLoading, refetch: refetchOrgs } = useOrgs();
   const [switcherOpen, setSwitcherOpen] = useState(false);
 
   useEffect(() => {
@@ -40,9 +42,22 @@ export default function HomeScreen() {
 
   const activeOrg = orgs?.find((o) => o.slug === activeOrgSlug) ?? null;
 
-  const { data: members } = useMembers(activeOrg?.slug ?? null);
-  const { data: programs } = usePrograms(activeOrg?.slug ?? null);
-  const { data: messages } = useMessages(activeOrg?.slug ?? null);
+  const { data: members, refetch: refetchMembers } = useMembers(activeOrg?.slug ?? null);
+  const { data: programs, refetch: refetchPrograms } = usePrograms(activeOrg?.slug ?? null);
+  const {
+    data: messages,
+    refetch: refetchMessages,
+    isRefetching: messagesRefetching,
+  } = useMessages(activeOrg?.slug ?? null);
+
+  const refreshAll = useCallback(() => {
+    void refetchOrgs();
+    void refetchMembers();
+    void refetchPrograms();
+    void refetchMessages();
+  }, [refetchOrgs, refetchMembers, refetchPrograms, refetchMessages]);
+
+  useRefetchOnFocus(refreshAll);
 
   if (orgsLoading) {
     return (
@@ -61,7 +76,16 @@ export default function HomeScreen() {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          refreshControl={
+            <RefreshControl
+              refreshing={messagesRefetching}
+              onRefresh={refreshAll}
+              tintColor={theme.primary}
+            />
+          }
+        >
           <UnverifiedBanner />
           <View style={styles.header}>
             <ThemedText type="default" themeColor="textMuted">

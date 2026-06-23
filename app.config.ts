@@ -30,6 +30,16 @@ const plugins: NonNullable<ExpoConfig['plugins']> = [
       color: '#4f46e5',
     },
   ],
+  // Build Google Sign-In's transitive pods (AppCheckCore, GoogleUtilities,
+  // RecaptchaInterop) as static *frameworks* so they generate module maps —
+  // without this, `pod install` fails: "Swift pods cannot be integrated as
+  // static libraries ... do not define modules".
+  [
+    'expo-build-properties',
+    {
+      ios: { useFrameworks: 'static' },
+    },
+  ],
 ];
 
 // Only register the Google Sign-In plugin once the iOS client ID is configured — the
@@ -48,16 +58,14 @@ const config: ExpoConfig = {
   scheme: 'com.irbforge.mobile',
   userInterfaceStyle: 'automatic',
   ios: {
-    icon: './assets/expo.icon',
+    icon: './assets/images/icon.png',
     bundleIdentifier: 'com.irbforge.mobile',
   },
   android: {
     package: 'com.irbforge.mobile',
     adaptiveIcon: {
-      backgroundColor: '#E6F4FE',
+      backgroundColor: '#4f46e5',
       foregroundImage: './assets/images/android-icon-foreground.png',
-      backgroundImage: './assets/images/android-icon-background.png',
-      monochromeImage: './assets/images/android-icon-monochrome.png',
     },
     predictiveBackGestureEnabled: false,
   },
