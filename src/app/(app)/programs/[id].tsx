@@ -86,7 +86,7 @@ export default function ProgramDetailScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <ThemedText type="title" style={styles.title}>
             {program.name}
@@ -284,7 +284,11 @@ function EditProgramModal({
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <ThemedView style={styles.container}>
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+        >
           <View style={styles.modalHeader}>
             <ThemedText type="subtitle" style={styles.modalTitle}>
               Edit program

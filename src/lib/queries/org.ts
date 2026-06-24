@@ -1,7 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { orgApi } from '@/lib/api/org';
-import type { CreateOrganizationPayload, UpdateOrganizationPayload } from '@/lib/api/types';
+import type {
+  CreateOrganizationPayload,
+  Organization,
+  UpdateOrganizationPayload,
+} from '@/lib/api/types';
 import { queryKeys } from '@/lib/query-keys';
 
 export function useOrgs() {
@@ -9,10 +13,14 @@ export function useOrgs() {
 }
 
 export function useOrg(slug: string | null) {
+  const queryClient = useQueryClient();
   return useQuery({
     queryKey: queryKeys.orgs.detail(slug ?? ''),
     queryFn: () => orgApi.get(slug as string),
     enabled: Boolean(slug),
+    // Seed from the orgs list cache so org-scoped screens render immediately.
+    placeholderData: () =>
+      queryClient.getQueryData<Organization[]>(queryKeys.orgs.all())?.find((o) => o.slug === slug),
   });
 }
 

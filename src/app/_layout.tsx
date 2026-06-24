@@ -4,11 +4,13 @@ import { AppState, useColorScheme, type AppStateStatus } from 'react-native';
 import { focusManager, QueryClientProvider } from '@tanstack/react-query';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
+import { useTheme } from '@/hooks/use-theme';
 import { queryClient } from '@/lib/query-client';
 import { useAuthStore } from '@/lib/store/auth-store';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const theme = useTheme();
   const bootstrap = useAuthStore((s) => s.bootstrap);
 
   useEffect(() => {
@@ -28,7 +30,12 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <AnimatedSplashOverlay />
-        <Stack screenOptions={{ headerShown: false }}>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: theme.background },
+          }}
+        >
           <Stack.Screen name="index" />
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(app)" />

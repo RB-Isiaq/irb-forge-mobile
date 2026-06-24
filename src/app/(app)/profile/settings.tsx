@@ -18,7 +18,11 @@ import { Spacing } from '@/constants/theme';
 export default function AccountSettingsScreen() {
   return (
     <ThemedView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
         <UpdateProfileSection />
         <ChangePasswordSection />
       </ScrollView>

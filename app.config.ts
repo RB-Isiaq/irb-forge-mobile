@@ -1,5 +1,11 @@
 import type { ExpoConfig } from 'expo/config';
 
+// Firebase (FCM) config for Android push. Referenced only when provided, so the build
+// never breaks before it's set up. Point GOOGLE_SERVICES_JSON at the file: locally
+// `GOOGLE_SERVICES_JSON=./google-services.json npx expo run:android`, or set it as a
+// "file" env var on EAS (`eas env:create --type file`) for cloud builds.
+const googleServicesFile = process.env.GOOGLE_SERVICES_JSON;
+
 // The Google Sign-In iOS config plugin needs the *reversed* iOS OAuth client ID as a
 // URL scheme. Derive it from the env var so the client ID stays the single source of
 // truth (kept in .env.local, never committed) rather than being duplicated here.
@@ -14,10 +20,12 @@ const plugins: NonNullable<ExpoConfig['plugins']> = [
   [
     'expo-splash-screen',
     {
-      backgroundColor: '#208AEF',
+      backgroundColor: '#4f46e5',
+      image: './assets/images/splash-icon.png',
+      imageWidth: 150,
       android: {
         image: './assets/images/splash-icon.png',
-        imageWidth: 76,
+        imageWidth: 150,
       },
     },
   ],
@@ -68,6 +76,7 @@ const config: ExpoConfig = {
       foregroundImage: './assets/images/android-icon-foreground.png',
     },
     predictiveBackGestureEnabled: false,
+    ...(googleServicesFile ? { googleServicesFile } : {}),
   },
   web: {
     output: 'static',

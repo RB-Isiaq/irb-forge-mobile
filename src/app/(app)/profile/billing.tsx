@@ -81,7 +81,7 @@ export default function BillingScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         {/* Current plan */}
         <ThemedView type="backgroundElement" style={styles.card}>
           <View style={styles.cardTop}>

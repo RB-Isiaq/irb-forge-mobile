@@ -43,6 +43,7 @@ export default function InvitationsScreen() {
           <ActivityIndicator color={theme.primary} />
         ) : (
           <FlatList
+            showsVerticalScrollIndicator={false}
             data={pending}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContent}

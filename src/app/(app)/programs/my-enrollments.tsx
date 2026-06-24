@@ -28,6 +28,7 @@ export default function MyEnrollmentsScreen() {
         </View>
       ) : (
         <FlatList
+          showsVerticalScrollIndicator={false}
           data={enrollments ?? []}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
