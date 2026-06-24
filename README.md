@@ -4,8 +4,19 @@ The mobile client for **IRB Forge** — built with [Expo](https://expo.dev) (SDK
 
 ## Links
 
-- **Android app (this repo):** install the APK from EAS Build — see [Building & deploying](#building--deploying). For a permanent download, attach the `.apk` to a [GitHub Release](https://docs.github.com/en/repositories/releasing-projects-on-github). _(The Expo web export isn't a supported target — this is a native-first app.)_
+- **Download the Android app:** grab the `.apk` from the [latest release](https://github.com/RB-Isiaq/irb-forge-mobile/releases/latest) and sideload it (enable “install from unknown sources”). _(The Expo web export isn't a supported target — this is a native-first app.)_
 - **Web version of IRB Forge:** [irb-forge-fe.vercel.app](https://irb-forge-fe.vercel.app) — the sibling web client (separate `irb-forge-fe` repo).
+
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/01-sign-in.png" width="200" alt="Sign in" />
+  <img src="docs/screenshots/02-home.png" width="200" alt="Home" />
+  <img src="docs/screenshots/03-programs.png" width="200" alt="Programs" />
+  <img src="docs/screenshots/04-program-detail.png" width="200" alt="Program detail" />
+  <img src="docs/screenshots/05-announcements.png" width="200" alt="Announcements" />
+  <img src="docs/screenshots/06-profile.png" width="200" alt="Profile" />
+</p>
 
 ## Tech stack
 
