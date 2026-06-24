@@ -14,6 +14,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/hooks/use-theme';
 import { useRefetchOnFocus } from '@/hooks/use-refetch-on-focus';
+import { usePullRefresh } from '@/hooks/use-pull-refresh';
 import { useOrgStore } from '@/lib/store/org-store';
 import { useMessages, useSendMessage } from '@/lib/queries/message';
 import { useMyMembership } from '@/lib/queries/member';
@@ -26,12 +27,13 @@ const CAN_POST: OrgRole[] = ['owner', 'admin', 'mentor'];
 export default function MessagesScreen() {
   const theme = useTheme();
   const activeOrgSlug = useOrgStore((s) => s.activeOrgSlug);
-  const { data: messages, isLoading, refetch, isRefetching } = useMessages(activeOrgSlug);
+  const { data: messages, isLoading, refetch } = useMessages(activeOrgSlug);
   const { data: myMembership } = useMyMembership(activeOrgSlug);
   const sendMessage = useSendMessage(activeOrgSlug ?? '');
   const [content, setContent] = useState('');
 
   useRefetchOnFocus(refetch);
+  const { refreshing, onRefresh } = usePullRefresh(refetch);
 
   const canPost = myMembership ? CAN_POST.includes(myMembership.role) : false;
 
@@ -72,8 +74,8 @@ export default function MessagesScreen() {
             contentContainerStyle={styles.listContent}
             refreshControl={
               <RefreshControl
-                refreshing={isRefetching}
-                onRefresh={refetch}
+                refreshing={refreshing}
+                onRefresh={onRefresh}
                 tintColor={theme.primary}
               />
             }

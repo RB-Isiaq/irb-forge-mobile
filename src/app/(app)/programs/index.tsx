@@ -13,6 +13,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/hooks/use-theme';
 import { useRefetchOnFocus } from '@/hooks/use-refetch-on-focus';
+import { usePullRefresh } from '@/hooks/use-pull-refresh';
 import { useOrgStore } from '@/lib/store/org-store';
 import { usePrograms } from '@/lib/queries/program';
 import { useMyMembership } from '@/lib/queries/member';
@@ -31,11 +32,12 @@ const CAN_MANAGE: OrgRole[] = ['owner', 'admin'];
 export default function ProgramsScreen() {
   const theme = useTheme();
   const activeOrgSlug = useOrgStore((s) => s.activeOrgSlug);
-  const { data: programs, isLoading, refetch, isRefetching } = usePrograms(activeOrgSlug);
+  const { data: programs, isLoading, refetch } = usePrograms(activeOrgSlug);
   const { data: myMembership } = useMyMembership(activeOrgSlug);
   const canManage = myMembership ? CAN_MANAGE.includes(myMembership.role) : false;
 
   useRefetchOnFocus(refetch);
+  const { refreshing, onRefresh } = usePullRefresh(refetch);
 
   if (!activeOrgSlug) {
     return (
@@ -86,8 +88,8 @@ export default function ProgramsScreen() {
             contentContainerStyle={styles.listContent}
             refreshControl={
               <RefreshControl
-                refreshing={isRefetching}
-                onRefresh={refetch}
+                refreshing={refreshing}
+                onRefresh={onRefresh}
                 tintColor={theme.primary}
               />
             }
