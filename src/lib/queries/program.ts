@@ -1,7 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { programApi } from '@/lib/api/program';
-import type { CreateProgramPayload, UpdateProgramPayload } from '@/lib/api/types';
+import type {
+  CreateProgramPayload,
+  PaginatedData,
+  Program,
+  UpdateProgramPayload,
+} from '@/lib/api/types';
 import { queryKeys } from '@/lib/query-keys';
 
 export function usePrograms(slug: string | null) {
@@ -13,10 +18,17 @@ export function usePrograms(slug: string | null) {
 }
 
 export function useProgram(slug: string | null, id: string | null) {
+  const queryClient = useQueryClient();
   return useQuery({
     queryKey: queryKeys.programs.detail(slug ?? '', id ?? ''),
     queryFn: () => programApi.get(slug as string, id as string),
     enabled: Boolean(slug && id),
+    // Seed from the programs list cache so the detail page opens instantly with
+    // the right program, then refetches the full record in the background.
+    placeholderData: () =>
+      queryClient
+        .getQueryData<PaginatedData<Program>>(queryKeys.programs.list(slug ?? ''))
+        ?.items.find((p) => p.id === id),
   });
 }
 
