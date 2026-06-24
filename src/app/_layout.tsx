@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import { AppState, useColorScheme, type AppStateStatus } from 'react-native';
+import * as SystemUI from 'expo-system-ui';
 import { focusManager, QueryClientProvider } from '@tanstack/react-query';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
@@ -16,6 +17,13 @@ export default function RootLayout() {
   useEffect(() => {
     void bootstrap();
   }, [bootstrap]);
+
+  // Paint the native root view the theme color so screen transitions and the
+  // brief mount before a themed view renders never flash white (NativeTabs has
+  // no `contentStyle` to theme the content area the way the Stack does).
+  useEffect(() => {
+    void SystemUI.setBackgroundColorAsync(theme.background);
+  }, [theme.background]);
 
   // React Query's refetchOnWindowFocus doesn't fire on React Native by default —
   // bridge it to AppState so returning from the background refetches stale data.
