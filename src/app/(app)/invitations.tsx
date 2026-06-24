@@ -12,6 +12,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/hooks/use-theme';
 import { useRefetchOnFocus } from '@/hooks/use-refetch-on-focus';
+import { usePullRefresh } from '@/hooks/use-pull-refresh';
 import {
   useAcceptInvitation,
   useDeclineInvitation,
@@ -22,11 +23,12 @@ import { Spacing } from '@/constants/theme';
 
 export default function InvitationsScreen() {
   const theme = useTheme();
-  const { data: invitations, isLoading, refetch, isRefetching } = useMyInvitations();
+  const { data: invitations, isLoading, refetch } = useMyInvitations();
   const acceptInvitation = useAcceptInvitation();
   const declineInvitation = useDeclineInvitation();
 
   useRefetchOnFocus(refetch);
+  const { refreshing, onRefresh } = usePullRefresh(refetch);
 
   const pending = (invitations ?? []).filter((i) => i.status === 'pending');
 
@@ -49,8 +51,8 @@ export default function InvitationsScreen() {
             contentContainerStyle={styles.listContent}
             refreshControl={
               <RefreshControl
-                refreshing={isRefetching}
-                onRefresh={refetch}
+                refreshing={refreshing}
+                onRefresh={onRefresh}
                 tintColor={theme.primary}
               />
             }

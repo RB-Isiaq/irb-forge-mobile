@@ -14,6 +14,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/hooks/use-theme';
 import { useRefetchOnFocus } from '@/hooks/use-refetch-on-focus';
+import { usePullRefresh } from '@/hooks/use-pull-refresh';
 import { useOrgStore } from '@/lib/store/org-store';
 import {
   useMembers,
@@ -30,9 +31,10 @@ const CAN_MANAGE_ROLES: OrgRole[] = ['owner', 'admin'];
 export default function MembersScreen() {
   const theme = useTheme();
   const activeOrgSlug = useOrgStore((s) => s.activeOrgSlug);
-  const { data: members, isLoading, refetch, isRefetching } = useMembers(activeOrgSlug);
+  const { data: members, isLoading, refetch } = useMembers(activeOrgSlug);
   const { data: myMembership } = useMyMembership(activeOrgSlug);
   useRefetchOnFocus(refetch);
+  const { refreshing, onRefresh } = usePullRefresh(refetch);
   const updateRole = useUpdateMemberRole(activeOrgSlug ?? '');
   const removeMember = useRemoveMember(activeOrgSlug ?? '');
   const [managingUserId, setManagingUserId] = useState<string | null>(null);
@@ -79,8 +81,8 @@ export default function MembersScreen() {
             contentContainerStyle={styles.listContent}
             refreshControl={
               <RefreshControl
-                refreshing={isRefetching}
-                onRefresh={refetch}
+                refreshing={refreshing}
+                onRefresh={onRefresh}
                 tintColor={theme.primary}
               />
             }

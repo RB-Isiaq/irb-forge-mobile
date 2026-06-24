@@ -16,6 +16,7 @@ import { ThemedView } from '@/components/themed-view';
 import { UnverifiedBanner } from '@/components/unverified-banner';
 import { useTheme } from '@/hooks/use-theme';
 import { useRefetchOnFocus } from '@/hooks/use-refetch-on-focus';
+import { usePullRefresh } from '@/hooks/use-pull-refresh';
 import { useAuthStore } from '@/lib/store/auth-store';
 import { useOrgStore } from '@/lib/store/org-store';
 import { useCreateOrg, useOrgs } from '@/lib/queries/org';
@@ -44,20 +45,15 @@ export default function HomeScreen() {
 
   const { data: members, refetch: refetchMembers } = useMembers(activeOrg?.slug ?? null);
   const { data: programs, refetch: refetchPrograms } = usePrograms(activeOrg?.slug ?? null);
-  const {
-    data: messages,
-    refetch: refetchMessages,
-    isRefetching: messagesRefetching,
-  } = useMessages(activeOrg?.slug ?? null);
+  const { data: messages, refetch: refetchMessages } = useMessages(activeOrg?.slug ?? null);
 
-  const refreshAll = useCallback(() => {
-    void refetchOrgs();
-    void refetchMembers();
-    void refetchPrograms();
-    void refetchMessages();
-  }, [refetchOrgs, refetchMembers, refetchPrograms, refetchMessages]);
+  const refreshAll = useCallback(
+    () => Promise.all([refetchOrgs(), refetchMembers(), refetchPrograms(), refetchMessages()]),
+    [refetchOrgs, refetchMembers, refetchPrograms, refetchMessages]
+  );
 
   useRefetchOnFocus(refreshAll);
+  const { refreshing, onRefresh } = usePullRefresh(refreshAll);
 
   if (orgsLoading) {
     return (
@@ -81,8 +77,8 @@ export default function HomeScreen() {
           contentContainerStyle={styles.scrollContent}
           refreshControl={
             <RefreshControl
-              refreshing={messagesRefetching}
-              onRefresh={refreshAll}
+              refreshing={refreshing}
+              onRefresh={onRefresh}
               tintColor={theme.primary}
             />
           }
