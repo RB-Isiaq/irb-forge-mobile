@@ -54,3 +54,6 @@ example
 
 expo-env.d.ts
 # @end expo-cli
+# Firebase / FCM credentials (provide via EAS file env var for builds)
+google-services.json
+GoogleService-Info.plist

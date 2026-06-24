@@ -80,6 +80,7 @@ export default function ProgramsScreen() {
           <ActivityIndicator color={theme.primary} />
         ) : (
           <FlatList
+            showsVerticalScrollIndicator={false}
             data={programs?.items ?? []}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContent}

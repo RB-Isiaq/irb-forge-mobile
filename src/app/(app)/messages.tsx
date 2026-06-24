@@ -66,6 +66,7 @@ export default function MessagesScreen() {
           <ActivityIndicator color={theme.primary} />
         ) : (
           <FlatList
+            showsVerticalScrollIndicator={false}
             data={messages?.items ?? []}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContent}

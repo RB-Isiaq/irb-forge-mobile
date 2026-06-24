@@ -73,6 +73,7 @@ export default function MembersScreen() {
           <ActivityIndicator color={theme.primary} />
         ) : (
           <FlatList
+            showsVerticalScrollIndicator={false}
             data={members?.items ?? []}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContent}
