@@ -44,6 +44,11 @@ export default function AppTabs() {
         <NativeTabs.Trigger.Icon sf="megaphone.fill" md="campaign" />
       </NativeTabs.Trigger>
 
+      <NativeTabs.Trigger name="channels">
+        <NativeTabs.Trigger.Label>Channels</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="bubble.left.and.bubble.right.fill" md="chat" />
+      </NativeTabs.Trigger>
+
       <NativeTabs.Trigger name="profile">
         <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="person.crop.circle.fill" md="person" />

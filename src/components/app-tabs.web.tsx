@@ -36,6 +36,9 @@ export default function AppTabs() {
           <TabTrigger name="messages" href="/messages" asChild>
             <TabButton>Announcements</TabButton>
           </TabTrigger>
+          <TabTrigger name="channels" href="/channels" asChild>
+            <TabButton>Channels</TabButton>
+          </TabTrigger>
           <TabTrigger name="profile" href="/profile" asChild>
             <TabButton>Profile</TabButton>
           </TabTrigger>

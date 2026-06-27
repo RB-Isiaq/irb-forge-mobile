@@ -29,6 +29,14 @@ export const queryKeys = {
     byOrg: (slug: string) => ['orgs', slug, 'messages'] as const,
   },
 
+  channels: {
+    byOrg: (slug: string) => ['orgs', slug, 'channels'] as const,
+    members: (slug: string, channelId: string) =>
+      ['orgs', slug, 'channels', channelId, 'members'] as const,
+    messages: (slug: string, channelId: string) =>
+      ['orgs', slug, 'channels', channelId, 'messages'] as const,
+  },
+
   enrollments: {
     byProgram: (slug: string, programId: string) =>
       ['orgs', slug, 'programs', programId, 'enrollments'] as const,
