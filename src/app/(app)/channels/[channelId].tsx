@@ -16,6 +16,7 @@ import { Stack, router, useLocalSearchParams } from 'expo-router';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { MarkdownContent } from '@/components/markdown-content';
 import { useTheme } from '@/hooks/use-theme';
 import { useRefetchOnFocus } from '@/hooks/use-refetch-on-focus';
 import { usePullRefresh } from '@/hooks/use-pull-refresh';
@@ -168,7 +169,7 @@ function MessageRow({ message }: { message: ChannelMessage }) {
 
   return (
     <ThemedView type="backgroundElement" style={styles.card}>
-      <ThemedText type="small">{message.content}</ThemedText>
+      <MarkdownContent content={message.content} />
       <ThemedText type="small" themeColor="textMuted">
         {authorName} · {new Date(message.createdAt).toLocaleDateString()}
       </ThemedText>
