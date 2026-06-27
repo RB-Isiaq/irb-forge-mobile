@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { MarkdownContent } from '@/components/markdown-content';
 import { UnverifiedBanner } from '@/components/unverified-banner';
 import { useTheme } from '@/hooks/use-theme';
 import { useRefetchOnFocus } from '@/hooks/use-refetch-on-focus';
@@ -110,7 +111,7 @@ export default function HomeScreen() {
             {messages && messages.items.length > 0 ? (
               messages.items.slice(0, 3).map((m) => (
                 <ThemedView key={m.id} type="backgroundElement" style={styles.card}>
-                  <ThemedText type="small">{m.content}</ThemedText>
+                  <MarkdownContent content={m.content} />
                   <ThemedText type="small" themeColor="textMuted">
                     {m.author
                       ? `${m.author.firstName ?? ''} ${m.author.lastName ?? ''}`.trim() || 'Member'

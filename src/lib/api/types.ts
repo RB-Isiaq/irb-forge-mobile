@@ -69,6 +69,17 @@ export interface PaginatedData<T> {
   pages: number;
 }
 
+/**
+ * Cursor pagination (used by channel messages). Pass `nextCursor` back as the
+ * `before` query param to load older items; it's `null` when history is
+ * exhausted. The channel feed polls, so offset pagination would be unstable —
+ * hence the cursor.
+ */
+export interface CursorPaginatedData<T> {
+  items: T[];
+  nextCursor: string | null;
+}
+
 /* ─── Organizations ─────────────────────────────── */
 
 export interface Organization {

@@ -5,7 +5,7 @@ import type {
   ChannelMember,
   ChannelMessage,
   CreateChannelPayload,
-  PaginatedData,
+  CursorPaginatedData,
   SendChannelMessagePayload,
 } from './types';
 
@@ -24,13 +24,14 @@ export const channelApi = {
 };
 
 export const channelMessageApi = {
-  // Loads the latest page only (backend default: 20, newest-first). This is
-  // deliberate: the channel polls every 5s for new messages, and the backend
-  // paginates by offset — so scroll-up "load older" would shift page boundaries
-  // on each new message and duplicate/skip rows. Proper history needs cursor
-  // (createdAt/id) pagination on the backend before we add infinite scroll here.
+  // Cursor-paginated, newest-first ({ items, nextCursor }). We load only the
+  // latest page today; pass `before=<nextCursor>` to page older messages when we
+  // add scroll-up history. Cursor (not offset) so the 5s poll inserting new rows
+  // at the head doesn't shift page boundaries.
   list: (slug: string, channelId: string) =>
-    apiGet<PaginatedData<ChannelMessage>>(`/organizations/${slug}/channels/${channelId}/messages`),
+    apiGet<CursorPaginatedData<ChannelMessage>>(
+      `/organizations/${slug}/channels/${channelId}/messages`
+    ),
   send: (slug: string, channelId: string, data: SendChannelMessagePayload) =>
     apiPost<ChannelMessage>(`/organizations/${slug}/channels/${channelId}/messages`, data),
 };

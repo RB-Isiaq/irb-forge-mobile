@@ -1,6 +1,6 @@
 # IRB Forge Mobile
 
-The mobile client for **IRB Forge** — built with [Expo](https://expo.dev) (SDK 56) and React Native. It is a sibling to the web app (`irb-forge-fe`) and the backend API (`irb-forge`), and shares their conventions. The app lets users work with **organizations** and their **members**, **programs**, **invitations**, and **messages**.
+The mobile client for **IRB Forge** — built with [Expo](https://expo.dev) (SDK 56) and React Native. It is a sibling to the web app (`irb-forge-fe`) and the backend API (`irb-forge`), and shares their conventions. The app lets users work with **organizations** and their **members**, **programs**, **invitations**, **announcements**, and **channels** (group chat) — with **Markdown-formatted** messages and **push notifications** for new posts.
 
 ## Links
 

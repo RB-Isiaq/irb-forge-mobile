@@ -8,14 +8,14 @@ import {
   Pressable,
   RefreshControl,
   StyleSheet,
-  TextInput,
-  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { MarkdownContent } from '@/components/markdown-content';
+import { MarkdownComposer } from '@/components/markdown-composer';
 import { useTheme } from '@/hooks/use-theme';
 import { useRefetchOnFocus } from '@/hooks/use-refetch-on-focus';
 import { usePullRefresh } from '@/hooks/use-pull-refresh';
@@ -126,35 +126,13 @@ export default function ChannelDetailScreen() {
             />
           )}
 
-          <View style={styles.composer}>
-            <TextInput
-              placeholder="Message this channel…"
-              placeholderTextColor={theme.textMuted}
-              value={content}
-              onChangeText={setContent}
-              multiline
-              style={[styles.input, { borderColor: theme.border, color: theme.text }]}
-            />
-            <Pressable
-              disabled={sendMessage.isPending || !content.trim()}
-              onPress={handleSend}
-              style={[
-                styles.sendButton,
-                {
-                  backgroundColor: theme.primary,
-                  opacity: sendMessage.isPending || !content.trim() ? 0.6 : 1,
-                },
-              ]}
-            >
-              {sendMessage.isPending ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <ThemedText type="smallBold" style={{ color: '#fff' }}>
-                  Send
-                </ThemedText>
-              )}
-            </Pressable>
-          </View>
+          <MarkdownComposer
+            value={content}
+            onChangeText={setContent}
+            onSend={handleSend}
+            sending={sendMessage.isPending}
+            placeholder="Message this channel…"
+          />
         </SafeAreaView>
       </KeyboardAvoidingView>
     </ThemedView>
@@ -168,7 +146,7 @@ function MessageRow({ message }: { message: ChannelMessage }) {
 
   return (
     <ThemedView type="backgroundElement" style={styles.card}>
-      <ThemedText type="small">{message.content}</ThemedText>
+      <MarkdownContent content={message.content} />
       <ThemedText type="small" themeColor="textMuted">
         {authorName} · {new Date(message.createdAt).toLocaleDateString()}
       </ThemedText>
@@ -187,26 +165,4 @@ const styles = StyleSheet.create({
   centered: { justifyContent: 'center', alignItems: 'center' },
   listContent: { gap: Spacing.two, paddingBottom: Spacing.three },
   card: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.half },
-  composer: {
-    flexDirection: 'row',
-    gap: Spacing.two,
-    alignItems: 'flex-end',
-    paddingBottom: Spacing.three,
-  },
-  input: {
-    flex: 1,
-    borderWidth: 1,
-    borderRadius: Spacing.two,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-    fontSize: 14,
-    maxHeight: 100,
-  },
-  sendButton: {
-    borderRadius: Spacing.two,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two + 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
 });
