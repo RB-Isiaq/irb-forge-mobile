@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TextInput,
   View,
+  type TextStyle,
 } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
@@ -22,10 +23,63 @@ interface Props {
   sendLabel?: string;
 }
 
+type Tool =
+  | {
+      kind: 'wrap';
+      before: string;
+      after: string;
+      placeholder: string;
+      label: string;
+      style?: TextStyle;
+    }
+  | { kind: 'prefix'; prefix: string; label: string; style?: TextStyle };
+
+const TOOL_ORDER = [
+  'heading',
+  'bold',
+  'italic',
+  'quote',
+  'code',
+  'link',
+  'orderedList',
+  'bulletList',
+  'taskList',
+] as const;
+
+type ToolKey = (typeof TOOL_ORDER)[number];
+
+// Mirrors the web composer's toolbar (features/org/send-message).
+const TOOLS: Record<ToolKey, Tool> = {
+  heading: { kind: 'prefix', prefix: '## ', label: 'H' },
+  bold: {
+    kind: 'wrap',
+    before: '**',
+    after: '**',
+    placeholder: 'bold text',
+    label: 'B',
+    style: { fontWeight: '700' },
+  },
+  italic: {
+    kind: 'wrap',
+    before: '_',
+    after: '_',
+    placeholder: 'italic text',
+    label: 'I',
+    style: { fontStyle: 'italic' },
+  },
+  quote: { kind: 'prefix', prefix: '> ', label: '❝' },
+  code: { kind: 'wrap', before: '`', after: '`', placeholder: 'code', label: '</>' },
+  link: { kind: 'wrap', before: '[', after: '](url)', placeholder: 'link text', label: 'Link' },
+  orderedList: { kind: 'prefix', prefix: '1. ', label: '1.' },
+  bulletList: { kind: 'prefix', prefix: '- ', label: '•' },
+  taskList: { kind: 'prefix', prefix: '- [ ] ', label: '☑' },
+};
+
 /**
- * Message composer with a Write/Preview toggle, mirroring the web announcement
- * editor. Messages are markdown, so the preview renders exactly what the feed
- * will show. Shared by the announcements and channel composers.
+ * Message composer with a Write/Preview toggle and a markdown toolbar, mirroring
+ * the web announcement editor. The toolbar wraps the selection (or inserts a
+ * placeholder) / prefixes the current line(s); the preview renders exactly what
+ * the feed will show. Shared by the announcements and channel composers.
  */
 export function MarkdownComposer({
   value,
@@ -37,12 +91,50 @@ export function MarkdownComposer({
 }: Props) {
   const theme = useTheme();
   const [mode, setMode] = useState<'write' | 'preview'>('write');
-  const canSend = !!value.trim() && !sending;
+  const inputRef = useRef<TextInput>(null);
+  const selection = useRef({ start: value.length, end: value.length });
+  // Set only right after a toolbar action so the cursor lands correctly; cleared
+  // on the next selection event so normal typing stays uncontrolled.
+  const [forcedSelection, setForcedSelection] = useState<{ start: number; end: number } | null>(
+    null
+  );
 
-  // Derive the shown mode instead of syncing it in an effect: an empty value
-  // forces Write, so after a send clears the input we're back to Write with no
-  // "Nothing to preview yet" flash, and previewing emptiness isn't possible.
+  const canSend = !!value.trim() && !sending;
+  // An empty value forces Write, so a send (which clears the input) returns us to
+  // Write with no empty-preview flash, and previewing emptiness isn't possible.
   const activeMode = value.trim() ? mode : 'write';
+
+  function applyTool(key: ToolKey) {
+    const tool = TOOLS[key];
+    const { start, end } = selection.current;
+    let next: string;
+    let nextStart: number;
+    let nextEnd: number;
+
+    if (tool.kind === 'wrap') {
+      const inner = value.slice(start, end) || tool.placeholder;
+      next = value.slice(0, start) + tool.before + inner + tool.after + value.slice(end);
+      nextStart = start + tool.before.length;
+      nextEnd = nextStart + inner.length;
+    } else {
+      const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+      const rawEnd = start === end ? value.indexOf('\n', end) : end;
+      const lineEnd = rawEnd === -1 ? value.length : rawEnd;
+      const block = value.slice(lineStart, lineEnd);
+      const prefixed = block
+        .split('\n')
+        .map((line, idx) => (idx === 0 || line.trim() ? tool.prefix + line : line))
+        .join('\n');
+      next = value.slice(0, lineStart) + prefixed + value.slice(lineEnd);
+      nextStart = lineStart + tool.prefix.length;
+      nextEnd = lineStart + prefixed.length;
+    }
+
+    onChangeText(next);
+    selection.current = { start: nextStart, end: nextEnd };
+    setForcedSelection({ start: nextStart, end: nextEnd });
+    inputRef.current?.focus();
+  }
 
   return (
     <View style={styles.wrap}>
@@ -62,13 +154,41 @@ export function MarkdownComposer({
         ))}
       </View>
 
+      {activeMode === 'write' && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          keyboardShouldPersistTaps="always"
+          contentContainerStyle={styles.toolbar}
+        >
+          {TOOL_ORDER.map((key) => (
+            <Pressable
+              key={key}
+              onPress={() => applyTool(key)}
+              hitSlop={4}
+              style={[styles.toolBtn, { borderColor: theme.border }]}
+            >
+              <ThemedText type="small" style={[{ color: theme.textMuted }, TOOLS[key].style]}>
+                {TOOLS[key].label}
+              </ThemedText>
+            </Pressable>
+          ))}
+        </ScrollView>
+      )}
+
       <View style={styles.inputRow}>
         {activeMode === 'write' ? (
           <TextInput
+            ref={inputRef}
             placeholder={placeholder}
             placeholderTextColor={theme.textMuted}
             value={value}
             onChangeText={onChangeText}
+            selection={forcedSelection ?? undefined}
+            onSelectionChange={(e) => {
+              selection.current = e.nativeEvent.selection;
+              if (forcedSelection) setForcedSelection(null);
+            }}
             multiline
             style={[styles.input, { borderColor: theme.border, color: theme.text }]}
           />
@@ -113,6 +233,16 @@ const styles = StyleSheet.create({
   wrap: { gap: Spacing.one, paddingBottom: Spacing.three },
   tabs: { flexDirection: 'row', gap: Spacing.three },
   tab: { paddingVertical: Spacing.half },
+  toolbar: { gap: Spacing.one, paddingVertical: Spacing.half },
+  toolBtn: {
+    borderWidth: 1,
+    borderRadius: Spacing.one,
+    paddingHorizontal: Spacing.two,
+    paddingVertical: Spacing.half,
+    minWidth: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   inputRow: { flexDirection: 'row', gap: Spacing.two, alignItems: 'flex-end' },
   input: {
     flex: 1,
