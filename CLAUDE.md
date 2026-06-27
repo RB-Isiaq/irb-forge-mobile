@@ -29,7 +29,7 @@ Copy `.env.example` to `.env`. `EXPO_PUBLIC_API_URL` points at the IRB Forge bac
 
 ## Architecture
 
-This is the **mobile client for IRB Forge**. It is a sibling to the web app at `irb-forge-fe` and intentionally mirrors its conventions (notably the query-key factory). It talks to a shared backend over REST. The domain: **organizations** that contain **members** (with roles), run **programs**, send **invitations**, and post **messages**.
+This is the **mobile client for IRB Forge**. It is a sibling to the web app at `irb-forge-fe` and intentionally mirrors its conventions (notably the query-key factory). It talks to a shared backend over REST. The domain: **organizations** that contain **members** (with roles), run **programs**, send **invitations**, post **announcements** (one-way, owner/admin/mentor → everyone), and chat in **channels** (group chat with per-channel membership). Messages are authored as **Markdown** and rendered natively.
 
 Everything lives under `src/` (mapped to `@/*` via tsconfig paths; `@/assets/*` → `assets/`).
 
