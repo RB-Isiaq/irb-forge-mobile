@@ -70,9 +70,16 @@ function OrgSettingsForm({ org }: { org: Organization }) {
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
-            await deleteOrg.mutateAsync(org.slug);
-            setActiveOrgSlug(null);
-            router.replace('/(app)');
+            try {
+              await deleteOrg.mutateAsync(org.slug);
+              setActiveOrgSlug(null);
+              router.replace('/(app)');
+            } catch (err) {
+              Alert.alert(
+                'Could not delete',
+                (err as { message?: string })?.message ?? 'Please try again.'
+              );
+            }
           },
         },
       ]

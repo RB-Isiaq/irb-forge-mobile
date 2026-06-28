@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -54,8 +54,12 @@ export default function MessagesScreen() {
 
   async function handleSend() {
     if (!content.trim()) return;
-    await sendMessage.mutateAsync({ content: content.trim() });
-    setContent('');
+    try {
+      await sendMessage.mutateAsync({ content: content.trim() });
+      setContent('');
+    } catch (err) {
+      Alert.alert('Could not post', (err as { message?: string })?.message ?? 'Please try again.');
+    }
   }
 
   return (

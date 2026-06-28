@@ -77,8 +77,15 @@ export default function ProgramDetailScreen() {
         text: 'Delete',
         style: 'destructive',
         onPress: async () => {
-          await deleteProgram.mutateAsync(program.id);
-          router.back();
+          try {
+            await deleteProgram.mutateAsync(program.id);
+            router.back();
+          } catch (err) {
+            Alert.alert(
+              'Could not delete',
+              (err as { message?: string })?.message ?? 'Please try again.'
+            );
+          }
         },
       },
     ]);
