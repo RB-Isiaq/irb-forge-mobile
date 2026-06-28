@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -59,7 +59,11 @@ export default function ChannelDetailScreen() {
       myMembership?.role === 'admin' ||
       (!!channel.createdById && channel.createdById === userId));
 
-  const { data: messages, isLoading, refetch } = useChannelMessages(activeOrgSlug, channelId);
+  const { data, isLoading, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useChannelMessages(activeOrgSlug, channelId);
+  // Pages are newest-first; flattening keeps a single continuous DESC list that
+  // the inverted FlatList renders bottom-up (newest at the bottom).
+  const allMessages = useMemo(() => data?.pages.flatMap((p) => p.items) ?? [], [data]);
   const sendMessage = useSendChannelMessage(activeOrgSlug ?? '', channelId ?? '');
   const [content, setContent] = useState('');
 
@@ -122,9 +126,20 @@ export default function ChannelDetailScreen() {
             <FlatList
               inverted
               showsVerticalScrollIndicator={false}
-              data={messages?.items ?? []}
+              data={allMessages}
               keyExtractor={(item) => item.id}
               contentContainerStyle={styles.listContent}
+              onEndReachedThreshold={0.4}
+              onEndReached={() => {
+                // Inverted: the list's "end" is the visual top — load older here.
+                if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
+              }}
+              ListFooterComponent={
+                // Footer of an inverted list renders at the top: the load-older spinner.
+                isFetchingNextPage ? (
+                  <ActivityIndicator color={theme.primary} style={styles.olderSpinner} />
+                ) : null
+              }
               refreshControl={
                 <RefreshControl
                   refreshing={refreshing}
@@ -140,8 +155,7 @@ export default function ChannelDetailScreen() {
               renderItem={({ item, index }) => {
                 // Data is newest-first (DESC) and the list is inverted, so the
                 // message rendered *above* this one (older) is items[index + 1].
-                const items = messages?.items ?? [];
-                const older = items[index + 1];
+                const older = allMessages[index + 1];
                 const grouped =
                   !!older &&
                   older.authorId === item.authorId &&
@@ -229,6 +243,7 @@ const styles = StyleSheet.create({
   },
   centered: { justifyContent: 'center', alignItems: 'center' },
   listContent: { paddingVertical: Spacing.two },
+  olderSpinner: { marginVertical: Spacing.three },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
