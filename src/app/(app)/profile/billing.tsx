@@ -12,6 +12,7 @@ import {
   useOrgPayments,
   useSubscription,
 } from '@/lib/queries/subscription';
+import { flattenPages } from '@/lib/queries/use-paginated-list';
 import { queryKeys } from '@/lib/query-keys';
 import type { Payment, SubscriptionStatus } from '@/lib/api/types';
 import { Spacing } from '@/constants/theme';
@@ -40,7 +41,13 @@ export default function BillingScreen() {
   const queryClient = useQueryClient();
   const slug = useOrgStore((s) => s.activeOrgSlug);
   const { data: subscription, isLoading } = useSubscription(slug);
-  const { data: paymentsPage } = useOrgPayments(slug);
+  const {
+    data: paymentsData,
+    fetchNextPage: fetchMorePayments,
+    hasNextPage: hasMorePayments,
+    isFetchingNextPage: isFetchingMorePayments,
+  } = useOrgPayments(slug);
+  const payments = flattenPages(paymentsData);
   const checkout = useCreateCheckout(slug ?? '');
   const cancel = useCancelSubscription(slug ?? '');
 
@@ -148,8 +155,8 @@ export default function BillingScreen() {
         {/* Payment history */}
         <View style={styles.section}>
           <ThemedText type="smallBold">Payment history</ThemedText>
-          {paymentsPage && paymentsPage.items.length > 0 ? (
-            paymentsPage.items.map((p) => (
+          {payments.length > 0 ? (
+            payments.map((p) => (
               <ThemedView key={p.id} type="backgroundElement" style={styles.paymentRow}>
                 <View>
                   <ThemedText type="small">{formatAmount(p)}</ThemedText>
@@ -169,6 +176,25 @@ export default function BillingScreen() {
             <ThemedText type="small" themeColor="textMuted">
               No payments yet.
             </ThemedText>
+          )}
+          {hasMorePayments && (
+            <Pressable
+              onPress={() => void fetchMorePayments()}
+              disabled={isFetchingMorePayments}
+              style={[
+                styles.button,
+                styles.outlineBtn,
+                { borderColor: theme.border, opacity: isFetchingMorePayments ? 0.6 : 1 },
+              ]}
+            >
+              {isFetchingMorePayments ? (
+                <ActivityIndicator color={theme.primary} />
+              ) : (
+                <ThemedText type="small" themeColor="primary">
+                  Load more
+                </ThemedText>
+              )}
+            </Pressable>
           )}
         </View>
       </ScrollView>

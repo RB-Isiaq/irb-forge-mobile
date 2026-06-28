@@ -24,13 +24,14 @@ export const channelApi = {
 };
 
 export const channelMessageApi = {
-  // Cursor-paginated, newest-first ({ items, nextCursor }). We load only the
-  // latest page today; pass `before=<nextCursor>` to page older messages when we
-  // add scroll-up history. Cursor (not offset) so the 5s poll inserting new rows
-  // at the head doesn't shift page boundaries.
-  list: (slug: string, channelId: string) =>
+  // Cursor-paginated, newest-first ({ items, nextCursor }). Pass `before`
+  // (a previous response's nextCursor) to load older history; cursor (not offset)
+  // so the 5s poll inserting new rows at the head doesn't shift page boundaries.
+  list: (slug: string, channelId: string, before?: string) =>
     apiGet<CursorPaginatedData<ChannelMessage>>(
-      `/organizations/${slug}/channels/${channelId}/messages`
+      `/organizations/${slug}/channels/${channelId}/messages${
+        before ? `?before=${encodeURIComponent(before)}` : ''
+      }`
     ),
   send: (slug: string, channelId: string, data: SendChannelMessagePayload) =>
     apiPost<ChannelMessage>(`/organizations/${slug}/channels/${channelId}/messages`, data),

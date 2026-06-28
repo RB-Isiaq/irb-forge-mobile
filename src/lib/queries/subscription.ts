@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { subscriptionApi } from '@/lib/api/subscription';
 import { queryKeys } from '@/lib/query-keys';
+import { usePaginatedList } from '@/lib/queries/use-paginated-list';
 
 export function useSubscription(slug: string | null) {
   return useQuery({
@@ -12,11 +13,11 @@ export function useSubscription(slug: string | null) {
 }
 
 export function useOrgPayments(slug: string | null) {
-  return useQuery({
-    queryKey: queryKeys.payments.byOrg(slug ?? ''),
-    queryFn: () => subscriptionApi.getPayments(slug as string),
-    enabled: Boolean(slug),
-  });
+  return usePaginatedList(
+    queryKeys.payments.byOrg(slug ?? ''),
+    (page) => subscriptionApi.getPayments(slug as string, page),
+    Boolean(slug)
+  );
 }
 
 export function useCreateCheckout(slug: string) {

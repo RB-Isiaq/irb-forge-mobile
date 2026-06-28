@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { channelApi, channelMessageApi } from '@/lib/api/channel';
 import type {
@@ -69,10 +69,17 @@ export function useRemoveChannelMember(slug: string, channelId: string) {
 }
 
 export function useChannelMessages(slug: string | null, channelId: string | null) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: queryKeys.channels.messages(slug ?? '', channelId ?? ''),
-    queryFn: () => channelMessageApi.list(slug as string, channelId as string),
+    queryFn: ({ pageParam }) =>
+      channelMessageApi.list(slug as string, channelId as string, pageParam),
     enabled: Boolean(slug) && Boolean(channelId),
+    initialPageParam: undefined as string | undefined,
+    // `nextCursor` is the oldest loaded message's timestamp; pass it as `before`
+    // to load the next (older) page. Null when history is exhausted.
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    // Poll for new messages. Cursor pagination keeps already-loaded older pages
+    // stable as new rows arrive at the head, so this won't duplicate/shift them.
     refetchInterval: 5_000,
   });
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -8,6 +8,7 @@ import {
   Pressable,
   RefreshControl,
   StyleSheet,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
@@ -16,6 +17,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MarkdownContent } from '@/components/markdown-content';
 import { MarkdownComposer } from '@/components/markdown-composer';
+import { InitialsAvatar } from '@/components/initials-avatar';
 import { useTheme } from '@/hooks/use-theme';
 import { useRefetchOnFocus } from '@/hooks/use-refetch-on-focus';
 import { usePullRefresh } from '@/hooks/use-pull-refresh';
@@ -25,6 +27,19 @@ import { useChannelMessages, useChannels, useSendChannelMessage } from '@/lib/qu
 import { useMyMembership } from '@/lib/queries/member';
 import type { ChannelMessage } from '@/lib/api/types';
 import { Spacing } from '@/constants/theme';
+import { formatDayDivider, formatTime, isSameDay } from '@/lib/date';
+
+// Same author within this window (and same day) collapses into one group —
+// avatar + name shown once, Slack/Discord-style.
+const GROUP_WINDOW_MS = 5 * 60 * 1000;
+const AVATAR_SIZE = 36;
+const AVATAR_GUTTER = AVATAR_SIZE + 10;
+
+function authorNameOf(message: ChannelMessage): string {
+  return message.author
+    ? `${message.author.firstName ?? ''} ${message.author.lastName ?? ''}`.trim() || 'Member'
+    : 'Member';
+}
 
 export default function ChannelDetailScreen() {
   const theme = useTheme();
@@ -44,7 +59,11 @@ export default function ChannelDetailScreen() {
       myMembership?.role === 'admin' ||
       (!!channel.createdById && channel.createdById === userId));
 
-  const { data: messages, isLoading, refetch } = useChannelMessages(activeOrgSlug, channelId);
+  const { data, isLoading, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useChannelMessages(activeOrgSlug, channelId);
+  // Pages are newest-first; flattening keeps a single continuous DESC list that
+  // the inverted FlatList renders bottom-up (newest at the bottom).
+  const allMessages = useMemo(() => data?.pages.flatMap((p) => p.items) ?? [], [data]);
   const sendMessage = useSendChannelMessage(activeOrgSlug ?? '', channelId ?? '');
   const [content, setContent] = useState('');
 
@@ -107,9 +126,20 @@ export default function ChannelDetailScreen() {
             <FlatList
               inverted
               showsVerticalScrollIndicator={false}
-              data={messages?.items ?? []}
+              data={allMessages}
               keyExtractor={(item) => item.id}
               contentContainerStyle={styles.listContent}
+              onEndReachedThreshold={0.4}
+              onEndReached={() => {
+                // Inverted: the list's "end" is the visual top — load older here.
+                if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
+              }}
+              ListFooterComponent={
+                // Footer of an inverted list renders at the top: the load-older spinner.
+                isFetchingNextPage ? (
+                  <ActivityIndicator color={theme.primary} style={styles.olderSpinner} />
+                ) : null
+              }
               refreshControl={
                 <RefreshControl
                   refreshing={refreshing}
@@ -122,7 +152,25 @@ export default function ChannelDetailScreen() {
                   No messages yet. Say hello!
                 </ThemedText>
               }
-              renderItem={({ item }) => <MessageRow message={item} />}
+              renderItem={({ item, index }) => {
+                // Data is newest-first (DESC) and the list is inverted, so the
+                // message rendered *above* this one (older) is items[index + 1].
+                const older = allMessages[index + 1];
+                const grouped =
+                  !!older &&
+                  older.authorId === item.authorId &&
+                  isSameDay(older.createdAt, item.createdAt) &&
+                  new Date(item.createdAt).getTime() - new Date(older.createdAt).getTime() <=
+                    GROUP_WINDOW_MS;
+                const showDivider = !older || !isSameDay(older.createdAt, item.createdAt);
+                return (
+                  <ChannelMessageItem
+                    message={item}
+                    showHeader={!grouped}
+                    showDivider={showDivider}
+                  />
+                );
+              }}
             />
           )}
 
@@ -139,18 +187,49 @@ export default function ChannelDetailScreen() {
   );
 }
 
-function MessageRow({ message }: { message: ChannelMessage }) {
-  const authorName = message.author
-    ? `${message.author.firstName ?? ''} ${message.author.lastName ?? ''}`.trim() || 'Member'
-    : 'Member';
+function ChannelMessageItem({
+  message,
+  showHeader,
+  showDivider,
+}: {
+  message: ChannelMessage;
+  showHeader: boolean;
+  showDivider: boolean;
+}) {
+  const theme = useTheme();
+  const name = authorNameOf(message);
 
   return (
-    <ThemedView type="backgroundElement" style={styles.card}>
-      <MarkdownContent content={message.content} />
-      <ThemedText type="small" themeColor="textMuted">
-        {authorName} · {new Date(message.createdAt).toLocaleDateString()}
-      </ThemedText>
-    </ThemedView>
+    <View>
+      {showDivider && (
+        <View style={styles.divider}>
+          <View style={[styles.dividerLine, { backgroundColor: theme.border }]} />
+          <ThemedText type="small" themeColor="textMuted">
+            {formatDayDivider(message.createdAt)}
+          </ThemedText>
+          <View style={[styles.dividerLine, { backgroundColor: theme.border }]} />
+        </View>
+      )}
+
+      {showHeader ? (
+        <View style={[styles.headerRow, showDivider && styles.noTopGap]}>
+          <InitialsAvatar name={name} seed={message.authorId ?? name} size={AVATAR_SIZE} />
+          <View style={styles.headerBody}>
+            <View style={styles.nameRow}>
+              <ThemedText type="smallBold">{name}</ThemedText>
+              <ThemedText type="small" themeColor="textMuted">
+                {formatTime(message.createdAt)}
+              </ThemedText>
+            </View>
+            <MarkdownContent content={message.content} />
+          </View>
+        </View>
+      ) : (
+        <View style={styles.continuation}>
+          <MarkdownContent content={message.content} />
+        </View>
+      )}
+    </View>
   );
 }
 
@@ -163,6 +242,18 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   centered: { justifyContent: 'center', alignItems: 'center' },
-  listContent: { gap: Spacing.two, paddingBottom: Spacing.three },
-  card: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.half },
+  listContent: { paddingVertical: Spacing.two },
+  olderSpinner: { marginVertical: Spacing.three },
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+    marginVertical: Spacing.three,
+  },
+  dividerLine: { flex: 1, height: StyleSheet.hairlineWidth },
+  headerRow: { flexDirection: 'row', gap: 10, marginTop: Spacing.three },
+  noTopGap: { marginTop: 0 },
+  headerBody: { flex: 1, gap: 2 },
+  nameRow: { flexDirection: 'row', alignItems: 'baseline', gap: Spacing.two },
+  continuation: { paddingLeft: AVATAR_GUTTER, marginTop: 2 },
 });

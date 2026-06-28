@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
@@ -16,6 +16,7 @@ import {
   useRemoveChannelMember,
 } from '@/lib/queries/channel';
 import { useMembers, useMyMembership } from '@/lib/queries/member';
+import { flattenPages } from '@/lib/queries/use-paginated-list';
 import type { OrgRole } from '@/lib/api/types';
 import { Spacing } from '@/constants/theme';
 
@@ -36,7 +37,18 @@ export default function ManageChannelScreen() {
 
   const { data: channels } = useChannels(activeOrgSlug);
   const channel = channels?.find((c) => c.id === channelId) ?? null;
-  const { data: members, isLoading: membersLoading } = useMembers(activeOrgSlug);
+  const {
+    data: members,
+    isLoading: membersLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useMembers(activeOrgSlug);
+  // Drain every page so the add-member picker offers all org members, not just
+  // the first page.
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
   const { data: myMembership } = useMyMembership(activeOrgSlug);
 
   // Mirrors the backend's `assertCanManageMembers`: org owner/admin, or the
@@ -85,7 +97,7 @@ export default function ManageChannelScreen() {
   }
 
   const memberIds = new Set((channelMembers ?? []).map((m) => m.userId));
-  const candidates = (members?.items ?? []).filter((m) => !memberIds.has(m.userId));
+  const candidates = flattenPages(members).filter((m) => !memberIds.has(m.userId));
 
   function handleAdd(targetUserId: string) {
     setPendingId(targetUserId);

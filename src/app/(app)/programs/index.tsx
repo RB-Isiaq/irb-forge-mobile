@@ -16,6 +16,7 @@ import { useRefetchOnFocus } from '@/hooks/use-refetch-on-focus';
 import { usePullRefresh } from '@/hooks/use-pull-refresh';
 import { useOrgStore } from '@/lib/store/org-store';
 import { usePrograms } from '@/lib/queries/program';
+import { flattenPages } from '@/lib/queries/use-paginated-list';
 import { useMyMembership } from '@/lib/queries/member';
 import type { OrgRole, Program, ProgramStatus } from '@/lib/api/types';
 import { Spacing } from '@/constants/theme';
@@ -32,7 +33,15 @@ const CAN_MANAGE: OrgRole[] = ['owner', 'admin'];
 export default function ProgramsScreen() {
   const theme = useTheme();
   const activeOrgSlug = useOrgStore((s) => s.activeOrgSlug);
-  const { data: programs, isLoading, refetch } = usePrograms(activeOrgSlug);
+  const {
+    data: programs,
+    isLoading,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = usePrograms(activeOrgSlug);
+  const programItems = flattenPages(programs);
   const { data: myMembership } = useMyMembership(activeOrgSlug);
   const canManage = myMembership ? CAN_MANAGE.includes(myMembership.role) : false;
 
@@ -83,9 +92,18 @@ export default function ProgramsScreen() {
         ) : (
           <FlatList
             showsVerticalScrollIndicator={false}
-            data={programs?.items ?? []}
+            data={programItems}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContent}
+            onEndReachedThreshold={0.4}
+            onEndReached={() => {
+              if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
+            }}
+            ListFooterComponent={
+              isFetchingNextPage ? (
+                <ActivityIndicator color={theme.primary} style={styles.footerSpinner} />
+              ) : null
+            }
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
@@ -153,6 +171,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.one,
   },
   listContent: { gap: Spacing.two, paddingBottom: Spacing.six },
+  footerSpinner: { marginVertical: Spacing.three },
   card: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.one },
   cardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   cardName: { flex: 1 },

@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, type InfiniteData } from '@tanstack/react-query';
 
 import { programApi } from '@/lib/api/program';
 import type {
@@ -8,13 +8,14 @@ import type {
   UpdateProgramPayload,
 } from '@/lib/api/types';
 import { queryKeys } from '@/lib/query-keys';
+import { usePaginatedList } from '@/lib/queries/use-paginated-list';
 
 export function usePrograms(slug: string | null) {
-  return useQuery({
-    queryKey: queryKeys.programs.list(slug ?? ''),
-    queryFn: () => programApi.list(slug as string),
-    enabled: Boolean(slug),
-  });
+  return usePaginatedList(
+    queryKeys.programs.list(slug ?? ''),
+    (page) => programApi.list(slug as string, page),
+    Boolean(slug)
+  );
 }
 
 export function useProgram(slug: string | null, id: string | null) {
@@ -23,12 +24,13 @@ export function useProgram(slug: string | null, id: string | null) {
     queryKey: queryKeys.programs.detail(slug ?? '', id ?? ''),
     queryFn: () => programApi.get(slug as string, id as string),
     enabled: Boolean(slug && id),
-    // Seed from the programs list cache so the detail page opens instantly with
-    // the right program, then refetches the full record in the background.
+    // Seed from the (paginated) programs list cache so the detail page opens
+    // instantly, then refetches the full record in the background.
     placeholderData: () =>
       queryClient
-        .getQueryData<PaginatedData<Program>>(queryKeys.programs.list(slug ?? ''))
-        ?.items.find((p) => p.id === id),
+        .getQueryData<InfiniteData<PaginatedData<Program>>>(queryKeys.programs.list(slug ?? ''))
+        ?.pages.flatMap((pg) => pg.items)
+        .find((p) => p.id === id),
   });
 }
 
