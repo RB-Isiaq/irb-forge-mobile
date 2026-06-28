@@ -11,6 +11,7 @@ import { useRefetchOnFocus } from '@/hooks/use-refetch-on-focus';
 import { usePullRefresh } from '@/hooks/use-pull-refresh';
 import { useOrgStore } from '@/lib/store/org-store';
 import { useMessages, useSendMessage } from '@/lib/queries/message';
+import { flattenPages } from '@/lib/queries/use-paginated-list';
 import { useMyMembership } from '@/lib/queries/member';
 import type { Message, OrgRole } from '@/lib/api/types';
 import { Spacing } from '@/constants/theme';
@@ -21,7 +22,15 @@ const CAN_POST: OrgRole[] = ['owner', 'admin', 'mentor'];
 export default function MessagesScreen() {
   const theme = useTheme();
   const activeOrgSlug = useOrgStore((s) => s.activeOrgSlug);
-  const { data: messages, isLoading, refetch } = useMessages(activeOrgSlug);
+  const {
+    data: messages,
+    isLoading,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useMessages(activeOrgSlug);
+  const messageItems = flattenPages(messages);
   const { data: myMembership } = useMyMembership(activeOrgSlug);
   const sendMessage = useSendMessage(activeOrgSlug ?? '');
   const [content, setContent] = useState('');
@@ -63,9 +72,18 @@ export default function MessagesScreen() {
         ) : (
           <FlatList
             showsVerticalScrollIndicator={false}
-            data={messages?.items ?? []}
+            data={messageItems}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContent}
+            onEndReachedThreshold={0.4}
+            onEndReached={() => {
+              if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
+            }}
+            ListFooterComponent={
+              isFetchingNextPage ? (
+                <ActivityIndicator color={theme.primary} style={styles.footerSpinner} />
+              ) : null
+            }
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
@@ -124,5 +142,6 @@ const styles = StyleSheet.create({
   header: { gap: Spacing.one },
   title: { fontSize: 32, lineHeight: 38 },
   listContent: { gap: Spacing.two, paddingBottom: Spacing.three },
+  footerSpinner: { marginVertical: Spacing.three },
   card: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.half },
 });

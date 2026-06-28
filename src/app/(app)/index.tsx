@@ -24,6 +24,7 @@ import { useCreateOrg, useOrgs } from '@/lib/queries/org';
 import { useMembers } from '@/lib/queries/member';
 import { usePrograms } from '@/lib/queries/program';
 import { useMessages } from '@/lib/queries/message';
+import { flattenPages } from '@/lib/queries/use-paginated-list';
 import type { Organization } from '@/lib/api/types';
 import { Spacing } from '@/constants/theme';
 
@@ -47,6 +48,8 @@ export default function HomeScreen() {
   const { data: members, refetch: refetchMembers } = useMembers(activeOrg?.slug ?? null);
   const { data: programs, refetch: refetchPrograms } = usePrograms(activeOrg?.slug ?? null);
   const { data: messages, refetch: refetchMessages } = useMessages(activeOrg?.slug ?? null);
+  // Home only needs counts + a few recent items, all on the first page.
+  const recentAnnouncements = flattenPages(messages).slice(0, 3);
 
   const refreshAll = useCallback(
     () => Promise.all([refetchOrgs(), refetchMembers(), refetchPrograms(), refetchMessages()]),
@@ -102,14 +105,14 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.statsRow}>
-            <StatCard label="Members" value={members?.total} />
-            <StatCard label="Programs" value={programs?.total} />
+            <StatCard label="Members" value={members?.pages[0]?.total} />
+            <StatCard label="Programs" value={programs?.pages[0]?.total} />
           </View>
 
           <View style={styles.section}>
             <ThemedText type="smallBold">Recent announcements</ThemedText>
-            {messages && messages.items.length > 0 ? (
-              messages.items.slice(0, 3).map((m) => (
+            {recentAnnouncements.length > 0 ? (
+              recentAnnouncements.map((m) => (
                 <ThemedView key={m.id} type="backgroundElement" style={styles.card}>
                   <MarkdownContent content={m.content} />
                   <ThemedText type="small" themeColor="textMuted">

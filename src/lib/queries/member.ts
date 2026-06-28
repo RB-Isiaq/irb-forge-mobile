@@ -3,13 +3,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { memberApi } from '@/lib/api/member';
 import type { UpdateMemberRolePayload } from '@/lib/api/types';
 import { queryKeys } from '@/lib/query-keys';
+import { usePaginatedList } from '@/lib/queries/use-paginated-list';
 
 export function useMembers(slug: string | null) {
-  return useQuery({
-    queryKey: queryKeys.members.list(slug ?? ''),
-    queryFn: () => memberApi.list(slug as string),
-    enabled: Boolean(slug),
-  });
+  return usePaginatedList(
+    queryKeys.members.list(slug ?? ''),
+    (page) => memberApi.list(slug as string, page),
+    Boolean(slug)
+  );
 }
 
 export function useMyMembership(slug: string | null) {

@@ -22,6 +22,7 @@ import {
   useRemoveMember,
   useUpdateMemberRole,
 } from '@/lib/queries/member';
+import { flattenPages } from '@/lib/queries/use-paginated-list';
 import type { Membership, OrgRole } from '@/lib/api/types';
 import { Spacing } from '@/constants/theme';
 
@@ -31,7 +32,15 @@ const CAN_MANAGE_ROLES: OrgRole[] = ['owner', 'admin'];
 export default function MembersScreen() {
   const theme = useTheme();
   const activeOrgSlug = useOrgStore((s) => s.activeOrgSlug);
-  const { data: members, isLoading, refetch } = useMembers(activeOrgSlug);
+  const {
+    data: members,
+    isLoading,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useMembers(activeOrgSlug);
+  const memberItems = flattenPages(members);
   const { data: myMembership } = useMyMembership(activeOrgSlug);
   useRefetchOnFocus(refetch);
   const { refreshing, onRefresh } = usePullRefresh(refetch);
@@ -76,9 +85,18 @@ export default function MembersScreen() {
         ) : (
           <FlatList
             showsVerticalScrollIndicator={false}
-            data={members?.items ?? []}
+            data={memberItems}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContent}
+            onEndReachedThreshold={0.4}
+            onEndReached={() => {
+              if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
+            }}
+            ListFooterComponent={
+              isFetchingNextPage ? (
+                <ActivityIndicator color={theme.primary} style={styles.footerSpinner} />
+              ) : null
+            }
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
@@ -204,6 +222,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.one,
   },
   listContent: { gap: Spacing.two, paddingBottom: Spacing.six },
+  footerSpinner: { marginVertical: Spacing.three },
   card: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.two },
   cardRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   cardInfo: { flex: 1, gap: Spacing.half },
