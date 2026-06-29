@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import { AppState, useColorScheme, type AppStateStatus } from 'react-native';
 import * as SystemUI from 'expo-system-ui';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { focusManager, QueryClientProvider } from '@tanstack/react-query';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
@@ -35,20 +36,22 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <AnimatedSplashOverlay />
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: theme.background },
-          }}
-        >
-          <Stack.Screen name="index" />
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(app)" />
-        </Stack>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <KeyboardProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <AnimatedSplashOverlay />
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: theme.background },
+            }}
+          >
+            <Stack.Screen name="index" />
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(app)" />
+          </Stack>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </KeyboardProvider>
   );
 }
