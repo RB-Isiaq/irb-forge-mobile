@@ -31,14 +31,6 @@ export default function AppTabs() {
         <NativeTabs.Trigger.Icon sf="person.2.fill" md="group" />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="invitations">
-        <NativeTabs.Trigger.Label>Inbox</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf="envelope.fill" md="mail" />
-        {pendingCount > 0 && (
-          <NativeTabs.Trigger.Badge>{String(pendingCount)}</NativeTabs.Trigger.Badge>
-        )}
-      </NativeTabs.Trigger>
-
       <NativeTabs.Trigger name="messages">
         <NativeTabs.Trigger.Label>Announcements</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="megaphone.fill" md="campaign" />
@@ -52,6 +44,10 @@ export default function AppTabs() {
       <NativeTabs.Trigger name="profile">
         <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="person.crop.circle.fill" md="person" />
+        {/* Pending invitations now live under Profile; surface the count here. */}
+        {pendingCount > 0 && (
+          <NativeTabs.Trigger.Badge>{String(pendingCount)}</NativeTabs.Trigger.Badge>
+        )}
       </NativeTabs.Trigger>
     </NativeTabs>
   );

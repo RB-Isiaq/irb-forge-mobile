@@ -30,9 +30,6 @@ export default function AppTabs() {
           <TabTrigger name="members" href="/members" asChild>
             <TabButton>Members</TabButton>
           </TabTrigger>
-          <TabTrigger name="invitations" href="/invitations" asChild>
-            <TabButton>Inbox</TabButton>
-          </TabTrigger>
           <TabTrigger name="messages" href="/messages" asChild>
             <TabButton>Announcements</TabButton>
           </TabTrigger>

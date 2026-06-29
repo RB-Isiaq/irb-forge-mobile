@@ -35,12 +35,6 @@ export default function InvitationsScreen() {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <ThemedText type="title" style={styles.title}>
-            Invitations
-          </ThemedText>
-        </View>
-
         {isLoading ? (
           <ActivityIndicator color={theme.primary} />
         ) : (
@@ -135,8 +129,6 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.five,
     gap: Spacing.three,
   },
-  header: { gap: Spacing.one },
-  title: { fontSize: 32, lineHeight: 38 },
   listContent: { gap: Spacing.two, paddingBottom: Spacing.six },
   card: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.one },
   actionsRow: { flexDirection: 'row', gap: Spacing.two, marginTop: Spacing.two },

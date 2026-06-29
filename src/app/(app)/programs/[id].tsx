@@ -148,6 +148,9 @@ export default function ProgramDetailScreen() {
               )}
             </Pressable>
           ) : (
+            // Matches the web: you can only enroll if you have no enrollment yet.
+            // A completed/dropped enrollment is terminal — there's no re-enroll.
+            !myEnrollment &&
             program.status === 'active' && (
               <Pressable
                 disabled={enroll.isPending}
@@ -158,7 +161,7 @@ export default function ProgramDetailScreen() {
                   <ActivityIndicator color="#fff" />
                 ) : (
                   <ThemedText type="smallBold" style={{ color: '#fff' }}>
-                    {myEnrollment ? 'Re-enroll' : 'Enroll'}
+                    Enroll
                   </ThemedText>
                 )}
               </Pressable>
