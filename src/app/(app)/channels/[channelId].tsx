@@ -10,13 +10,13 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MarkdownContent } from '@/components/markdown-content';
-import { MarkdownComposer } from '@/components/markdown-composer';
+import { ChatComposer } from '@/components/chat-composer';
 import { InitialsAvatar } from '@/components/initials-avatar';
 import { useTheme } from '@/hooks/use-theme';
 import { useRefetchOnFocus } from '@/hooks/use-refetch-on-focus';
@@ -43,6 +43,7 @@ function authorNameOf(message: ChannelMessage): string {
 
 export default function ChannelDetailScreen() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const { channelId } = useLocalSearchParams<{ channelId: string }>();
   const activeOrgSlug = useOrgStore((s) => s.activeOrgSlug);
   const userId = useAuthStore((s) => s.user?.id);
@@ -116,10 +117,11 @@ export default function ChannelDetailScreen() {
       />
       <KeyboardAvoidingView
         style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+        behavior="padding"
+        keyboardVerticalOffset={insets.top + (Platform.OS === 'ios' ? 44 : 56)}
       >
-        <SafeAreaView style={styles.safeArea}>
+        {/* The stack header already covers the top inset — don't pad it again. */}
+        <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
           {isLoading ? (
             <ActivityIndicator color={theme.primary} />
           ) : (
@@ -174,7 +176,7 @@ export default function ChannelDetailScreen() {
             />
           )}
 
-          <MarkdownComposer
+          <ChatComposer
             value={content}
             onChangeText={setContent}
             onSend={handleSend}
@@ -238,7 +240,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.three,
+    paddingTop: Spacing.one,
     gap: Spacing.three,
   },
   centered: { justifyContent: 'center', alignItems: 'center' },

@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -19,6 +20,7 @@ import { usePullRefresh } from '@/hooks/use-pull-refresh';
 import { useOrgStore } from '@/lib/store/org-store';
 import { useChannels, useCreateChannel } from '@/lib/queries/channel';
 import { useMyMembership } from '@/lib/queries/member';
+import { useSubscription } from '@/lib/queries/subscription';
 import type { Channel, OrgRole } from '@/lib/api/types';
 import { Spacing } from '@/constants/theme';
 
@@ -29,6 +31,7 @@ export default function ChannelsScreen() {
   const activeOrgSlug = useOrgStore((s) => s.activeOrgSlug);
   const { data: channels, isLoading, refetch } = useChannels(activeOrgSlug);
   const { data: myMembership } = useMyMembership(activeOrgSlug);
+  const { data: subscription } = useSubscription(activeOrgSlug);
   const createChannel = useCreateChannel(activeOrgSlug ?? '');
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState('');
@@ -38,6 +41,10 @@ export default function ChannelsScreen() {
   const { refreshing, onRefresh } = usePullRefresh(refetch);
 
   const canCreate = myMembership ? CAN_CREATE.includes(myMembership.role) : false;
+  // Mirrors the web gate: free plan is capped at 1 channel (the default), so a
+  // manager on Free sees an Upgrade link instead of a Create button.
+  const isPro = subscription?.plan === 'pro' && subscription.status === 'active';
+  const atFreeLimit = !isPro && (channels === undefined || channels.length >= 1);
 
   if (!activeOrgSlug) {
     return (
@@ -72,19 +79,40 @@ export default function ChannelsScreen() {
           <ThemedText type="title" style={styles.title}>
             Channels
           </ThemedText>
-          {canCreate && (
-            <Pressable
-              onPress={() => {
-                setShowForm((v) => !v);
-                setError(null);
-              }}
-              style={[styles.newBtn, { backgroundColor: theme.primary }]}
-            >
-              <ThemedText type="small" style={{ color: '#fff' }}>
-                {showForm ? 'Cancel' : 'New'}
-              </ThemedText>
-            </Pressable>
-          )}
+          {canCreate &&
+            (showForm ? (
+              <Pressable
+                onPress={() => {
+                  setShowForm(false);
+                  setError(null);
+                }}
+                style={[styles.newBtn, styles.upgradeBtn, { borderColor: theme.border }]}
+              >
+                <ThemedText type="small" themeColor="textMuted">
+                  Cancel
+                </ThemedText>
+              </Pressable>
+            ) : atFreeLimit ? (
+              <Link href="/(app)/profile/billing" asChild>
+                <Pressable
+                  style={[styles.newBtn, styles.upgradeBtn, { borderColor: theme.border }]}
+                >
+                  <Ionicons name="lock-closed" size={12} color={theme.textMuted} />
+                  <ThemedText type="small" themeColor="textMuted">
+                    Upgrade
+                  </ThemedText>
+                </Pressable>
+              </Link>
+            ) : (
+              <Pressable
+                onPress={() => setShowForm(true)}
+                style={[styles.newBtn, { backgroundColor: theme.primary }]}
+              >
+                <ThemedText type="small" style={{ color: '#fff' }}>
+                  New
+                </ThemedText>
+              </Pressable>
+            ))}
         </View>
 
         {showForm && (
@@ -176,6 +204,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.one,
   },
+  upgradeBtn: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one, borderWidth: 1 },
   createRow: { flexDirection: 'row', gap: Spacing.two, alignItems: 'center' },
   input: {
     flex: 1,

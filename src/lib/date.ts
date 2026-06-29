@@ -17,5 +17,9 @@ export function formatDayDivider(iso: string): string {
 
 /** "1:56 PM" — short time shown next to a message author. */
 export function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  return new Date(iso).toLocaleTimeString(undefined, {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
 }
