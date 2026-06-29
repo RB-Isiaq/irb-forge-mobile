@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  KeyboardAvoidingView,
+  RefreshControl,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -64,57 +72,59 @@ export default function MessagesScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <ThemedText type="title" style={styles.title}>
-            Announcements
-          </ThemedText>
-        </View>
+      <KeyboardAvoidingView style={styles.container} behavior="padding">
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.header}>
+            <ThemedText type="title" style={styles.title}>
+              Announcements
+            </ThemedText>
+          </View>
 
-        {isLoading ? (
-          <ActivityIndicator color={theme.primary} />
-        ) : (
-          <FlatList
-            showsVerticalScrollIndicator={false}
-            data={messageItems}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.listContent}
-            onEndReachedThreshold={0.4}
-            onEndReached={() => {
-              if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
-            }}
-            ListFooterComponent={
-              isFetchingNextPage ? (
-                <ActivityIndicator color={theme.primary} style={styles.footerSpinner} />
-              ) : null
-            }
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                tintColor={theme.primary}
-              />
-            }
-            ListEmptyComponent={
-              <ThemedText type="small" themeColor="textMuted">
-                No announcements yet.
-              </ThemedText>
-            }
-            renderItem={({ item }) => <MessageRow message={item} />}
-          />
-        )}
+          {isLoading ? (
+            <ActivityIndicator color={theme.primary} />
+          ) : (
+            <FlatList
+              showsVerticalScrollIndicator={false}
+              data={messageItems}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={styles.listContent}
+              onEndReachedThreshold={0.4}
+              onEndReached={() => {
+                if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
+              }}
+              ListFooterComponent={
+                isFetchingNextPage ? (
+                  <ActivityIndicator color={theme.primary} style={styles.footerSpinner} />
+                ) : null
+              }
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  tintColor={theme.primary}
+                />
+              }
+              ListEmptyComponent={
+                <ThemedText type="small" themeColor="textMuted">
+                  No announcements yet.
+                </ThemedText>
+              }
+              renderItem={({ item }) => <MessageRow message={item} />}
+            />
+          )}
 
-        {/* Composing is limited to owner/admin/mentor; members read only. */}
-        {canPost && (
-          <MarkdownComposer
-            value={content}
-            onChangeText={setContent}
-            onSend={handleSend}
-            sending={sendMessage.isPending}
-            placeholder="Write an announcement…"
-          />
-        )}
-      </SafeAreaView>
+          {/* Composing is limited to owner/admin/mentor; members read only. */}
+          {canPost && (
+            <MarkdownComposer
+              value={content}
+              onChangeText={setContent}
+              onSend={handleSend}
+              sending={sendMessage.isPending}
+              placeholder="Write an announcement…"
+            />
+          )}
+        </SafeAreaView>
+      </KeyboardAvoidingView>
     </ThemedView>
   );
 }

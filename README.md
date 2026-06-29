@@ -15,7 +15,8 @@ The mobile client for **IRB Forge** — built with [Expo](https://expo.dev) (SDK
   <img src="docs/screenshots/03-programs.png" width="200" alt="Programs" />
   <img src="docs/screenshots/04-program-detail.png" width="200" alt="Program detail" />
   <img src="docs/screenshots/05-announcements.png" width="200" alt="Announcements" />
-  <img src="docs/screenshots/06-profile.png" width="200" alt="Profile" />
+  <img src="docs/screenshots/06-channels.png" width="200" alt="Channels" />
+  <img src="docs/screenshots/07-profile.png" width="200" alt="Profile" />
 </p>
 
 ## Tech stack

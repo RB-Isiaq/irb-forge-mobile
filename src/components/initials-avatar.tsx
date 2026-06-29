@@ -2,22 +2,18 @@ import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 
-// Stable per-user colors, like Slack/Discord avatar fallbacks.
-const PALETTE = [
-  '#ef4444',
-  '#f97316',
-  '#f59e0b',
-  '#22c55e',
-  '#06b6d4',
-  '#3b82f6',
-  '#8b5cf6',
-  '#ec4899',
-];
-
 function hash(s: string): number {
   let h = 0;
   for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
   return Math.abs(h);
+}
+
+// A stable, per-user color from the seed's hue — ~360 distinct hues (so users
+// rarely collide, unlike a small fixed palette) at a fixed moderate saturation
+// and lightness, which keeps them vivid-but-not-harsh and readable under white
+// initials. Independent of the user's role.
+function colorFor(seed: string): string {
+  return `hsl(${hash(seed) % 360}, 52%, 48%)`;
 }
 
 export function getInitials(name: string): string {
@@ -37,7 +33,7 @@ export function InitialsAvatar({
   seed?: string;
   size?: number;
 }) {
-  const color = PALETTE[hash(seed || name) % PALETTE.length];
+  const color = colorFor(seed || name);
   return (
     <View
       style={[

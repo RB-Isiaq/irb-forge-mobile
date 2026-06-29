@@ -9,6 +9,8 @@ import {
   type TextStyle,
 } from 'react-native';
 
+import { Ionicons } from '@expo/vector-icons';
+
 import { ThemedText } from '@/components/themed-text';
 import { MarkdownContent } from '@/components/markdown-content';
 import { useTheme } from '@/hooks/use-theme';
@@ -20,7 +22,6 @@ interface Props {
   onSend: () => void;
   sending: boolean;
   placeholder: string;
-  sendLabel?: string;
 }
 
 type Tool =
@@ -81,14 +82,7 @@ const TOOLS: Record<ToolKey, Tool> = {
  * placeholder) / prefixes the current line(s); the preview renders exactly what
  * the feed will show. Shared by the announcements and channel composers.
  */
-export function MarkdownComposer({
-  value,
-  onChangeText,
-  onSend,
-  sending,
-  placeholder,
-  sendLabel = 'Send',
-}: Props) {
+export function MarkdownComposer({ value, onChangeText, onSend, sending, placeholder }: Props) {
   const theme = useTheme();
   const [mode, setMode] = useState<'write' | 'preview'>('write');
   const inputRef = useRef<TextInput>(null);
@@ -211,6 +205,7 @@ export function MarkdownComposer({
         <Pressable
           disabled={!canSend}
           onPress={onSend}
+          accessibilityLabel="Send"
           style={[
             styles.sendButton,
             { backgroundColor: theme.primary, opacity: canSend ? 1 : 0.6 },
@@ -219,9 +214,7 @@ export function MarkdownComposer({
           {sending ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <ThemedText type="smallBold" style={{ color: '#fff' }}>
-              {sendLabel}
-            </ThemedText>
+            <Ionicons name="send" size={18} color="#fff" />
           )}
         </Pressable>
       </View>
@@ -264,9 +257,9 @@ const styles = StyleSheet.create({
   previewContent: { paddingVertical: Spacing.two },
   empty: { fontStyle: 'italic' },
   sendButton: {
+    width: 44,
+    height: 44,
     borderRadius: Spacing.two,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two + 4,
     alignItems: 'center',
     justifyContent: 'center',
   },
