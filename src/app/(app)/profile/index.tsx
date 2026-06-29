@@ -9,6 +9,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useAuthStore } from '@/lib/store/auth-store';
 import { useOrgStore } from '@/lib/store/org-store';
 import { useMyMembership } from '@/lib/queries/member';
+import { useMyInvitations } from '@/lib/queries/invitation';
 import type { OrgRole } from '@/lib/api/types';
 import { Spacing } from '@/constants/theme';
 
@@ -20,6 +21,8 @@ export default function ProfileScreen() {
   const logout = useAuthStore((s) => s.logout);
   const activeOrgSlug = useOrgStore((s) => s.activeOrgSlug);
   const { data: myMembership } = useMyMembership(activeOrgSlug);
+  const { data: invitations } = useMyInvitations();
+  const pendingInvites = (invitations ?? []).filter((i) => i.status === 'pending').length;
   const [signingOut, setSigningOut] = useState(false);
 
   const canManageOrg = myMembership ? CAN_MANAGE_ORG.includes(myMembership.role) : false;
@@ -53,6 +56,10 @@ export default function ProfileScreen() {
           </ThemedView>
 
           <View style={styles.section}>
+            <NavRow
+              href="/(app)/profile/invitations"
+              label={pendingInvites > 0 ? `Invitations (${pendingInvites})` : 'Invitations'}
+            />
             <NavRow href="/(app)/profile/settings" label="Account settings" />
             {canManageOrg && (
               <>
