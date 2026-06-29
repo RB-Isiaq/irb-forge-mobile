@@ -77,7 +77,9 @@ export default function ProgramsScreen() {
             </Link>
             {canManage && (
               <Link href="/(app)/programs/new" asChild>
-                <Pressable style={[styles.newBtn, { backgroundColor: theme.primary }]}>
+                <Pressable
+                  style={StyleSheet.flatten([styles.newBtn, { backgroundColor: theme.primary }])}
+                >
                   <ThemedText type="small" style={{ color: '#fff' }}>
                     + New
                   </ThemedText>

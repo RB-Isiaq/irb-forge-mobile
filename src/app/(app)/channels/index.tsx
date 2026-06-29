@@ -95,7 +95,11 @@ export default function ChannelsScreen() {
             ) : atFreeLimit ? (
               <Link href="/(app)/profile/billing" asChild>
                 <Pressable
-                  style={[styles.newBtn, styles.upgradeBtn, { borderColor: theme.border }]}
+                  style={StyleSheet.flatten([
+                    styles.newBtn,
+                    styles.upgradeBtn,
+                    { borderColor: theme.border },
+                  ])}
                 >
                   <Ionicons name="lock-closed" size={12} color={theme.textMuted} />
                   <ThemedText type="small" themeColor="textMuted">

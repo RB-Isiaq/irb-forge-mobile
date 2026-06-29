@@ -71,7 +71,9 @@ export default function MembersScreen() {
           </ThemedText>
           {canManage && (
             <Link href="/(app)/members/invite" asChild>
-              <Pressable style={[styles.inviteBtn, { backgroundColor: theme.primary }]}>
+              <Pressable
+                style={StyleSheet.flatten([styles.inviteBtn, { backgroundColor: theme.primary }])}
+              >
                 <ThemedText type="small" style={{ color: '#fff' }}>
                   Invite
                 </ThemedText>
